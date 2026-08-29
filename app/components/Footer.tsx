@@ -58,6 +58,11 @@ export function Footer() {
                 </Link>
               </li>
               <li>
+                <Link href="/stories" className="hover:text-white">
+                  Patient Stories
+                </Link>
+              </li>
+              <li>
                 <Link href="/trust-safety" className="hover:text-white">
                   Trust & Safety
                 </Link>
