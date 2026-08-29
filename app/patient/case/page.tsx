@@ -170,25 +170,6 @@ export default function PatientCasePage() {
           </aside>
 
           <div className="lg:col-span-2">
-            <div className="hidden">
-              {steps.map((s, i) => (
-                <div key={s.label} className="flex flex-1 flex-col items-center text-center">
-                  <div
-                    className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-semibold ${
-                      i < step
-                        ? "bg-teal text-white"
-                        : i === step
-                        ? "border-2 border-navy bg-white text-navy"
-                        : "bg-sage text-muted"
-                    }`}
-                  >
-                    {i < step ? "✓" : i + 1}
-                  </div>
-                  <p className="mt-2 text-xs text-muted">{s.label}</p>
-                </div>
-              ))}
-            </div>
-
             {error && (
               <p className="mb-6 rounded-md bg-red-50 px-4 py-3 text-sm text-red-700">
                 {error}
