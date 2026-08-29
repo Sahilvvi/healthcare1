@@ -4,7 +4,7 @@ import { doctors } from "../lib/doctors";
 
 export function DoctorCards() {
   return (
-    <section id="doctors" className="animate-fade-up bg-warm-white py-20 lg:py-28">
+    <section id="doctors" className="bg-warm-white py-20 lg:py-28">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <div className="mb-12 max-w-2xl">
           <h2 className="font-heading text-3xl font-semibold text-navy md:text-4xl">

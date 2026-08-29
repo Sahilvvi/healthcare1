@@ -1,3 +1,7 @@
+"use client";
+
+import { Reveal } from "./Reveal";
+
 const steps = [
   {
     number: "01",
@@ -33,35 +37,39 @@ const steps = [
 
 export function Journey() {
   return (
-    <section id="journey" className="animate-fade-up bg-sage/40 py-20 lg:py-28">
+    <section id="journey" className="bg-sage/40 py-20 lg:py-28">
       <div className="mx-auto max-w-5xl px-6 lg:px-8">
-        <div className="mb-14 max-w-2xl">
-          <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-teal">
-            Plan → Treat → Recover
-          </p>
-          <h2 className="font-heading text-3xl font-semibold text-navy md:text-4xl">
-            Your healthcare journey, taken care of.
-          </h2>
-        </div>
+        <Reveal>
+          <div className="mb-14 max-w-2xl">
+            <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-teal">
+              Plan → Treat → Recover
+            </p>
+            <h2 className="font-heading text-3xl font-semibold text-navy md:text-4xl">
+              Your healthcare journey, taken care of.
+            </h2>
+          </div>
+        </Reveal>
         <div className="relative space-y-10 md:space-y-12">
           <div className="absolute left-6 top-0 bottom-0 w-px bg-teal/20 md:left-8" />
-          {steps.map((step) => (
-            <div key={step.number} className="relative flex items-start gap-6 md:gap-8">
-              <div className="relative z-10 flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-navy text-white shadow-md md:h-16 md:w-16">
-                <span className="font-heading text-sm font-semibold md:text-base">
-                  {step.number}
-                </span>
+          {steps.map((step, index) => (
+            <Reveal key={step.number} delay={index * 100}>
+              <div className="relative flex items-start gap-6 md:gap-8">
+                <div className="relative z-10 flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-navy text-white shadow-md md:h-16 md:w-16">
+                  <span className="font-heading text-sm font-semibold md:text-base">
+                    {step.number}
+                  </span>
+                </div>
+                <div className="flex-1 rounded-lg border border-border bg-white p-6 shadow-sm transition-shadow duration-300 hover:shadow-md md:p-8">
+                  <span className="font-heading text-sm font-semibold text-teal">
+                    Step {step.number}
+                  </span>
+                  <h3 className="mt-1 font-heading text-xl font-semibold text-navy">
+                    {step.title}
+                  </h3>
+                  <p className="mt-2 max-w-2xl text-muted">{step.description}</p>
+                </div>
               </div>
-              <div className="flex-1 rounded-lg border border-border bg-white p-6 shadow-sm transition-shadow duration-300 hover:shadow-md md:p-8">
-                <span className="font-heading text-sm font-semibold text-teal">
-                  Step {step.number}
-                </span>
-                <h3 className="mt-1 font-heading text-xl font-semibold text-navy">
-                  {step.title}
-                </h3>
-                <p className="mt-2 max-w-2xl text-muted">{step.description}</p>
-              </div>
-            </div>
+            </Reveal>
           ))}
         </div>
       </div>

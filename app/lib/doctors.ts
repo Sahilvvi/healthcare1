@@ -24,7 +24,7 @@ export const doctors: Doctor[] = [
     procedures: "1,200+",
     languages: ["English", "Hindi", "Arabic"],
     image:
-      "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&q=80&w=800",
+      "https://images.unsplash.com/photo-1758691462126-2ee47c8bf9e7?auto=format&fit=crop&q=80&w=800",
     qualifications: ["MBBS, AIIMS", "MD Cardiology, Johns Hopkins", "FACC"],
     expertise: ["Interventional Cardiology", "Heart Failure", "Preventive Cardiology"],
     hospitals: ["Apollo Chennai", "Fortis Escorts Delhi"],
@@ -41,7 +41,7 @@ export const doctors: Doctor[] = [
     procedures: "3,400+",
     languages: ["English", "Hindi", "Tamil"],
     image:
-      "https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&q=80&w=800",
+      "https://images.unsplash.com/photo-1758691462493-120a069304e6?auto=format&fit=crop&q=80&w=800",
     qualifications: ["MBBS, CMC Vellore", "MS Orthopedics, UK"],
     expertise: ["Joint Replacement", "Sports Medicine", "Spine Surgery"],
     hospitals: ["Apollo Chennai", "Max Hospital Mumbai"],
@@ -58,7 +58,7 @@ export const doctors: Doctor[] = [
     procedures: "900+",
     languages: ["English", "Hindi", "Marathi"],
     image:
-      "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&q=80&w=800",
+      "https://images.unsplash.com/photo-1631562502360-4487ceab6d8a?auto=format&fit=crop&q=80&w=800",
     qualifications: ["MBBS, BJMC", "DM Oncology, Tata Memorial"],
     expertise: ["Medical Oncology", "Breast Cancer", "Lymphoma"],
     hospitals: ["Tata Memorial Mumbai", "HCG Bengaluru"],
@@ -75,7 +75,7 @@ export const doctors: Doctor[] = [
     procedures: "2,100+",
     languages: ["English", "Hindi", "Kannada"],
     image:
-      "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&q=80&w=800",
+      "https://images.unsplash.com/photo-1758691462482-2b6ccbaefa6e?auto=format&fit=crop&q=80&w=800",
     qualifications: ["MBBS, KMC Manipal", "DM Neurology, NIMHANS"],
     expertise: ["Stroke", "Epilepsy", "Movement Disorders"],
     hospitals: ["NIMHANS Bengaluru", "Apollo Bengaluru"],

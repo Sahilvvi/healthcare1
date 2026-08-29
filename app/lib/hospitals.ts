@@ -18,7 +18,7 @@ export const hospitals: Hospital[] = [
     city: "Chennai",
     country: "India",
     image:
-      "https://images.unsplash.com/photo-1586773860418-d37222d8fce3?auto=format&fit=crop&q=80&w=1200",
+      "https://images.unsplash.com/photo-1778151270902-cb0ca572f2ee?auto=format&fit=crop&q=80&w=1200",
     accreditations: ["JCI", "NABH", "NABL"],
     specialties: ["Cardiology", "Orthopedics", "Oncology", "Transplants"],
     beds: "600+",
@@ -38,7 +38,7 @@ export const hospitals: Hospital[] = [
     city: "New Delhi",
     country: "India",
     image:
-      "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&q=80&w=1200",
+      "https://images.unsplash.com/photo-1774114433487-c7088f63403b?auto=format&fit=crop&q=80&w=1200",
     accreditations: ["JCI", "NABH"],
     specialties: ["Cardiology", "Cardiac Surgery", "Vascular Surgery"],
     beds: "310",
@@ -58,7 +58,7 @@ export const hospitals: Hospital[] = [
     city: "Mumbai",
     country: "India",
     image:
-      "https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&q=80&w=1200",
+      "https://images.unsplash.com/photo-1710074213374-e68503a1b795?auto=format&fit=crop&q=80&w=1200",
     accreditations: ["NABH", "NABL"],
     specialties: ["Medical Oncology", "Radiation Oncology", "Surgical Oncology"],
     beds: "700+",
@@ -78,7 +78,7 @@ export const hospitals: Hospital[] = [
     city: "Bengaluru",
     country: "India",
     image:
-      "https://images.unsplash.com/photo-1764885449332-7eb941d53b7e?auto=format&fit=crop&q=80&w=1200",
+      "https://images.unsplash.com/photo-1720463903383-c45df62da719?auto=format&fit=crop&q=80&w=1200",
     accreditations: ["NABH"],
     specialties: ["Neurology", "Neurosurgery", "Psychiatry", "Rehabilitation"],
     beds: "800+",
