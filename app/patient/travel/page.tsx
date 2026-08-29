@@ -1,13 +1,53 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
+import { createClient } from "@/app/lib/supabase/server";
 
-const itinerary = [
-  { date: "12 Sep 2026", title: "Arrival in Chennai", detail: "Flight AI 128 · 8:30 AM IST · Airport pickup confirmed" },
-  { date: "13 Sep 2026", title: "Medical evaluation", detail: "Apollo Hospital · 10:00 AM · Coordinator will escort" },
-  { date: "15 Sep 2026", title: "Treatment begins", detail: "Pre-op checks and admission at 7:00 AM" },
-  { date: "18 Sep 2026", title: "Discharge planning", detail: "Discharge summary, medicines and follow-up schedule" },
-];
+interface TravelEvent {
+  id: string;
+  title: string;
+  detail: string | null;
+  scheduled_at: string | null;
+}
 
-export default function PatientTravelPage() {
+interface TravelItinerary {
+  id: string;
+  visa_docs: unknown;
+  accommodation: string | null;
+  coordinator_contact: string | null;
+  dv_travel_events: TravelEvent[];
+}
+
+export default async function PatientTravelPage() {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    redirect("/login");
+  }
+
+  const { data: cases } = await supabase
+    .from("dv_cases")
+    .select("id")
+    .eq("patient_id", user.id)
+    .order("created_at", { ascending: false })
+    .limit(1);
+
+  const activeCase = cases?.[0];
+
+  let itinerary: TravelItinerary | null = null;
+  if (activeCase) {
+    const { data } = await supabase
+      .from("dv_travel_itineraries")
+      .select("*, dv_travel_events(*)")
+      .eq("case_id", activeCase.id)
+      .single();
+    itinerary = (data as TravelItinerary) || null;
+  }
+
   return (
     <section className="bg-warm-white py-10 lg:py-16">
       <div className="mx-auto max-w-5xl px-6 lg:px-8">
@@ -23,36 +63,33 @@ export default function PatientTravelPage() {
           <div className="rounded-lg border border-border bg-white p-6 shadow-sm">
             <h2 className="font-heading text-lg font-semibold text-navy">Visa & documents</h2>
             <ul className="mt-4 space-y-3 text-sm text-dark">
-              <li className="flex items-center justify-between">
-                <span>Medical visa invitation</span>
-                <span className="text-teal">Ready</span>
-              </li>
-              <li className="flex items-center justify-between">
-                <span>Hospital appointment letter</span>
-                <span className="text-teal">Ready</span>
-              </li>
-              <li className="flex items-center justify-between">
-                <span>Travel insurance</span>
-                <span className="text-muted">Pending</span>
-              </li>
+              {Array.isArray(itinerary?.visa_docs) && itinerary.visa_docs.length > 0 ? (
+                (itinerary.visa_docs as string[]).map((doc) => (
+                  <li key={doc} className="flex items-center justify-between">
+                    <span>{doc}</span>
+                    <span className="text-teal">Ready</span>
+                  </li>
+                ))
+              ) : (
+                <li className="text-muted">No travel documents recorded yet.</li>
+              )}
             </ul>
           </div>
 
           <div className="rounded-lg border border-border bg-white p-6 shadow-sm">
             <h2 className="font-heading text-lg font-semibold text-navy">Accommodation</h2>
             <div className="mt-4 text-sm">
-              <p className="font-medium text-dark">Apollo Courtyard</p>
-              <p className="text-muted">12–20 Sep 2026 · 8 nights</p>
-              <p className="mt-2 text-muted">24 Greams Road, Chennai</p>
+              <p className="font-medium text-dark">{itinerary?.accommodation || "Not booked yet"}</p>
+              {!itinerary?.accommodation && (
+                <p className="text-muted">Your coordinator will add accommodation details here.</p>
+              )}
             </div>
           </div>
 
           <div className="rounded-lg border border-border bg-white p-6 shadow-sm">
             <h2 className="font-heading text-lg font-semibold text-navy">Coordinator</h2>
             <div className="mt-4 text-sm">
-              <p className="font-medium text-dark">Asha Raman</p>
-              <p className="text-muted">+91 98765 43210</p>
-              <p className="text-muted">asha.r@dadashrihealthcare.com</p>
+              <p className="font-medium text-dark">{itinerary?.coordinator_contact || "Not assigned"}</p>
             </div>
           </div>
         </div>
@@ -60,21 +97,29 @@ export default function PatientTravelPage() {
         <div className="mt-8 rounded-lg border border-border bg-white p-6 shadow-sm">
           <h2 className="font-heading text-lg font-semibold text-navy">Itinerary</h2>
           <div className="mt-6 space-y-0">
-            {itinerary.map((item, i) => (
-              <div key={item.title} className="relative flex gap-4 pb-8 last:pb-0">
-                <div className="flex flex-col items-center">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-teal text-xs font-semibold text-white">
-                    {i + 1}
+            {itinerary && itinerary.dv_travel_events && itinerary.dv_travel_events.length > 0 ? (
+              itinerary.dv_travel_events.map((item, i, arr) => (
+                <div key={item.id} className="relative flex gap-4 pb-8 last:pb-0">
+                  <div className="flex flex-col items-center">
+                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-teal text-xs font-semibold text-white">
+                      {i + 1}
+                    </div>
+                    {i < arr.length - 1 && <div className="mt-2 h-full w-px bg-border" />}
                   </div>
-                  {i < itinerary.length - 1 && <div className="mt-2 h-full w-px bg-border" />}
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-wide text-teal">
+                      {item.scheduled_at
+                        ? new Date(item.scheduled_at).toLocaleDateString()
+                        : "TBC"}
+                    </p>
+                    <h3 className="mt-1 font-heading font-semibold text-navy">{item.title}</h3>
+                    <p className="text-sm text-muted">{item.detail || ""}</p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-wide text-teal">{item.date}</p>
-                  <h3 className="mt-1 font-heading font-semibold text-navy">{item.title}</h3>
-                  <p className="text-sm text-muted">{item.detail}</p>
-                </div>
-              </div>
-            ))}
+              ))
+            ) : (
+              <p className="text-sm text-muted">No itinerary events yet.</p>
+            )}
           </div>
         </div>
       </div>

@@ -1,15 +1,29 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
+import { createClient } from "@/app/lib/supabase/server";
+import type { Document } from "@/app/lib/types";
 
-const documents = [
-  { name: "MRI Left Knee", type: "Medical Report", date: "22 Aug 2026", status: "Verified" },
-  { name: "Blood Work Summary", type: "Medical Report", date: "21 Aug 2026", status: "Verified" },
-  { name: "Discharge Summary", type: "Hospital Record", date: "15 Aug 2026", status: "Verified" },
-  { name: "Prescription #4829", type: "Prescription", date: "14 Aug 2026", status: "Active" },
-  { name: "Invoice INV-2026-0912", type: "Invoice", date: "12 Aug 2026", status: "Paid" },
-  { name: "Treatment Plan", type: "Plan", date: "10 Aug 2026", status: "Current" },
-];
+export default async function PatientDocumentsPage() {
+  const supabase = await createClient();
 
-export default function PatientDocumentsPage() {
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    redirect("/login");
+  }
+
+  const { data: documentsData } = await supabase
+    .from("dv_documents")
+    .select("*")
+    .eq("patient_id", user.id)
+    .order("created_at", { ascending: false })
+    .limit(50);
+
+  const documents: Document[] = (documentsData as Document[]) || [];
+
   return (
     <section className="bg-warm-white py-10 lg:py-16">
       <div className="mx-auto max-w-5xl px-6 lg:px-8">
@@ -36,30 +50,36 @@ export default function PatientDocumentsPage() {
               <thead className="border-b border-border text-muted">
                 <tr>
                   <th className="py-3 font-medium">Document</th>
-                  <th className="py-3 font-medium">Type</th>
                   <th className="py-3 font-medium">Date</th>
-                  <th className="py-3 font-medium">Status</th>
                   <th className="py-3 font-medium"></th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
                 {documents.map((doc) => (
-                  <tr key={doc.name}>
-                    <td className="py-4 text-dark">{doc.name}</td>
-                    <td className="py-4 text-muted">{doc.type}</td>
-                    <td className="py-4 text-muted">{doc.date}</td>
-                    <td className="py-4">
-                      <span className="rounded-full bg-sage px-2.5 py-1 text-xs text-dark">
-                        {doc.status}
-                      </span>
+                  <tr key={doc.id}>
+                    <td className="py-4 text-dark">{doc.label}</td>
+                    <td className="py-4 text-muted">
+                      {new Date(doc.created_at).toLocaleDateString()}
                     </td>
                     <td className="py-4 text-right">
-                      <button className="text-sm font-medium text-teal hover:text-navy">
+                      <a
+                        href={doc.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-sm font-medium text-teal hover:text-navy"
+                      >
                         View
-                      </button>
+                      </a>
                     </td>
                   </tr>
                 ))}
+                {documents.length === 0 && (
+                  <tr>
+                    <td className="py-4 text-muted" colSpan={3}>
+                      No documents uploaded yet.
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>

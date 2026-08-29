@@ -1,7 +1,14 @@
 import Link from "next/link";
-import { packages } from "../lib/packages";
+import { supabasePublic } from "@/app/lib/supabase/public";
+import type { Package } from "@/app/lib/types";
 
-export default function PackagesPage() {
+export default async function PackagesPage() {
+  const { data, error } = await supabasePublic.from("dv_packages").select("*");
+  if (error) {
+    console.error("Failed to fetch packages:", error.message);
+  }
+  const packages: Package[] = (data as Package[]) || [];
+
   return (
     <section className="bg-warm-white py-16 lg:py-24">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
@@ -42,7 +49,7 @@ export default function PackagesPage() {
               </p>
               <p className="text-sm text-muted">Starting from</p>
               <ul className="mt-6 flex-1 space-y-3">
-                {pkg.includes.slice(0, 5).map((item) => (
+                {pkg.includes?.slice(0, 5).map((item) => (
                   <li key={item} className="flex items-start gap-3 text-sm">
                     <CheckIcon />
                     <span className="text-dark">{item}</span>

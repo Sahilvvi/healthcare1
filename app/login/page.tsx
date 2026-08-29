@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { createClient } from "@/app/lib/supabase/client";
 
 const roleRoutes: Record<string, string> = {
   patient: "/patient/dashboard",
@@ -10,15 +11,41 @@ const roleRoutes: Record<string, string> = {
   admin: "/admin/dashboard",
 };
 
-const roles = [
-  { key: "patient", label: "Patient" },
-  { key: "doctor", label: "Doctor" },
-  { key: "admin", label: "Admin" },
-];
-
 export default function LoginPage() {
-  const [role, setRole] = useState("patient");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setLoading(true);
+
+    const supabase = createClient();
+
+    const { data, error: signInError } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (signInError || !data.user) {
+      setError(signInError?.message ?? "Invalid credentials");
+      setLoading(false);
+      return;
+    }
+
+    const { data: profile } = await supabase
+      .from("dv_profiles")
+      .select("role")
+      .eq("id", data.user.id)
+      .single();
+
+    const role = profile?.role ?? "patient";
+    router.push(roleRoutes[role] ?? "/patient/dashboard");
+    router.refresh();
+  };
 
   return (
     <section className="bg-warm-white py-16 lg:py-24">
@@ -31,35 +58,22 @@ export default function LoginPage() {
             Sign in to your Dadashri Vishwa Healthcare account.
           </p>
 
-          <div className="mt-6 grid grid-cols-3 gap-2 rounded-md bg-sage/30 p-1">
-            {roles.map((r) => (
-              <button
-                key={r.key}
-                onClick={() => setRole(r.key)}
-                className={`rounded-md py-2 text-sm font-medium transition-colors ${
-                  role === r.key
-                    ? "bg-white text-navy shadow-sm"
-                    : "text-muted hover:text-dark"
-                }`}
-              >
-                {r.label}
-              </button>
-            ))}
-          </div>
+          {error && (
+            <p className="mt-4 rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">
+              {error}
+            </p>
+          )}
 
-          <form
-            className="mt-6 space-y-4"
-            onSubmit={(e) => {
-              e.preventDefault();
-              router.push(roleRoutes[role]);
-            }}
-          >
+          <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
             <div>
               <label className="block text-sm font-medium text-dark">
                 Email
               </label>
               <input
                 type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
                 className="mt-1 w-full rounded-md border border-border px-3 py-2 text-sm outline-none focus:border-teal"
                 placeholder="you@example.com"
               />
@@ -70,15 +84,20 @@ export default function LoginPage() {
               </label>
               <input
                 type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                minLength={6}
                 className="mt-1 w-full rounded-md border border-border px-3 py-2 text-sm outline-none focus:border-teal"
                 placeholder="••••••••"
               />
             </div>
             <button
               type="submit"
-              className="w-full rounded-md bg-navy py-2.5 text-sm font-medium text-white transition-colors hover:bg-teal"
+              disabled={loading}
+              className="w-full rounded-md bg-navy py-2.5 text-sm font-medium text-white transition-colors hover:bg-teal disabled:opacity-60"
             >
-              Sign in as {role.charAt(0).toUpperCase() + role.slice(1)}
+              {loading ? "Signing in..." : "Sign in"}
             </button>
           </form>
 

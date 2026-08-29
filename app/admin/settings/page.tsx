@@ -1,4 +1,29 @@
-export default function AdminSettingsPage() {
+import { redirect } from "next/navigation";
+import { createClient } from "@/app/lib/supabase/server";
+
+export default async function AdminSettingsPage() {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    redirect("/login");
+  }
+
+  const { data: profile } = await supabase
+    .from("dv_profiles")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+
+  const role = (profile as { role?: string } | null)?.role;
+  if (role !== "admin" && role !== "doctor") {
+    redirect("/patient/dashboard");
+  }
+
   return (
     <section>
       <div className="mb-6">

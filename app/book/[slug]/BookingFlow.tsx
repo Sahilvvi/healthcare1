@@ -3,26 +3,47 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import type { Doctor } from "../../lib/doctors";
+import { useRouter } from "next/navigation";
+import type { Doctor } from "@/app/lib/types";
+import { bookAppointment } from "./actions";
 
 const days = ["Mon", "Tue", "Wed", "Thu", "Fri"];
 const slots = ["09:00 AM", "10:30 AM", "12:00 PM", "02:00 PM", "04:30 PM"];
 
-export function BookingFlow({ doctor }: { doctor: Doctor }) {
+export function BookingFlow({
+  doctor,
+  caseId,
+  patientName,
+  patientEmail,
+}: {
+  doctor: Doctor;
+  caseId: string;
+  patientName: string;
+  patientEmail: string;
+}) {
   const [step, setStep] = useState(1);
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
-  const [form, setForm] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    country: "",
-    notes: "",
-  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
 
-  const handleNext = () => {
-    if (step === 1 && selectedSlot) setStep(2);
-    if (step === 2 && form.name && form.email && form.phone) setStep(3);
-  };
+  async function handleConfirm() {
+    if (!selectedSlot) return;
+    setLoading(true);
+    setError(null);
+    const result = await bookAppointment({
+      caseId,
+      doctorId: doctor.id,
+      slot: selectedSlot,
+    });
+    if (result.error) {
+      setError(result.error);
+      setLoading(false);
+      return;
+    }
+    setStep(3);
+    router.refresh();
+  }
 
   return (
     <section className="bg-warm-white py-16 lg:py-24">
@@ -79,7 +100,7 @@ export function BookingFlow({ doctor }: { doctor: Doctor }) {
                 2
               </span>
               <span className={step >= 2 ? "text-navy" : "text-muted"}>
-                Your details
+                Confirm
               </span>
               <span className="mx-2 text-border">—</span>
               <span
@@ -90,7 +111,7 @@ export function BookingFlow({ doctor }: { doctor: Doctor }) {
                 3
               </span>
               <span className={step >= 3 ? "text-navy" : "text-muted"}>
-                Confirm
+                Done
               </span>
             </div>
           </div>
@@ -130,76 +151,22 @@ export function BookingFlow({ doctor }: { doctor: Doctor }) {
           {step === 2 && (
             <div className="mt-8 space-y-5">
               <h2 className="font-heading text-lg font-semibold text-navy">
-                Patient details
+                Confirm your details
               </h2>
-              <div className="grid gap-5 sm:grid-cols-2">
-                <div>
-                  <label className="block text-sm font-medium text-dark">
-                    Full name
-                  </label>
-                  <input
-                    value={form.name}
-                    onChange={(e) =>
-                      setForm({ ...form, name: e.target.value })
-                    }
-                    className="mt-1 w-full rounded-md border border-border px-3 py-2 text-sm outline-none focus:border-teal"
-                    placeholder="Sarah Thompson"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-dark">
-                    Email
-                  </label>
-                  <input
-                    value={form.email}
-                    onChange={(e) =>
-                      setForm({ ...form, email: e.target.value })
-                    }
-                    className="mt-1 w-full rounded-md border border-border px-3 py-2 text-sm outline-none focus:border-teal"
-                    placeholder="sarah@example.com"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-dark">
-                    Phone
-                  </label>
-                  <input
-                    value={form.phone}
-                    onChange={(e) =>
-                      setForm({ ...form, phone: e.target.value })
-                    }
-                    className="mt-1 w-full rounded-md border border-border px-3 py-2 text-sm outline-none focus:border-teal"
-                    placeholder="+1 234 567 890"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-dark">
-                    Country
-                  </label>
-                  <input
-                    value={form.country}
-                    onChange={(e) =>
-                      setForm({ ...form, country: e.target.value })
-                    }
-                    className="mt-1 w-full rounded-md border border-border px-3 py-2 text-sm outline-none focus:border-teal"
-                    placeholder="USA"
-                  />
-                </div>
+              <div className="rounded-md border border-border bg-warm-white p-4 text-sm">
+                <p className="text-muted">Patient</p>
+                <p className="font-medium text-dark">{patientName}</p>
+                <p className="mt-1 text-dark">{patientEmail}</p>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-dark">
-                  Notes for the doctor
-                </label>
-                <textarea
-                  value={form.notes}
-                  onChange={(e) =>
-                    setForm({ ...form, notes: e.target.value })
-                  }
-                  className="mt-1 w-full rounded-md border border-border px-3 py-2 text-sm outline-none focus:border-teal"
-                  rows={3}
-                  placeholder="Briefly describe your symptoms or reason for consultation..."
-                />
+              <div className="rounded-md border border-border bg-warm-white p-4 text-sm">
+                <p className="text-muted">Selected slot</p>
+                <p className="font-medium text-dark">{selectedSlot}</p>
               </div>
+              {error && (
+                <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">
+                  {error}
+                </p>
+              )}
             </div>
           )}
 
@@ -227,8 +194,7 @@ export function BookingFlow({ doctor }: { doctor: Doctor }) {
                 <strong className="text-dark">{selectedSlot}</strong>.
               </p>
               <p className="text-sm text-muted">
-                A confirmation email has been sent to {form.email}. Your care
-                coordinator will reach out shortly.
+                A confirmation has been saved to your dashboard.
               </p>
               <Link
                 href="/patient/dashboard"
@@ -248,16 +214,23 @@ export function BookingFlow({ doctor }: { doctor: Doctor }) {
               >
                 Back
               </button>
-              <button
-                onClick={handleNext}
-                disabled={
-                  (step === 1 && !selectedSlot) ||
-                  (step === 2 && !(form.name && form.email && form.phone))
-                }
-                className="rounded-md bg-navy px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-teal disabled:opacity-50"
-              >
-                Continue
-              </button>
+              {step === 1 ? (
+                <button
+                  onClick={() => setStep(2)}
+                  disabled={!selectedSlot}
+                  className="rounded-md bg-navy px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-teal disabled:opacity-50"
+                >
+                  Continue
+                </button>
+              ) : (
+                <button
+                  onClick={handleConfirm}
+                  disabled={loading}
+                  className="rounded-md bg-navy px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-teal disabled:opacity-50"
+                >
+                  {loading ? "Confirming..." : "Confirm booking"}
+                </button>
+              )}
             </div>
           )}
         </div>

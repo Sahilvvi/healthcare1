@@ -1,69 +1,55 @@
-"use client";
-
-import { useMemo, useState } from "react";
 import Link from "next/link";
-import { doctors } from "../lib/doctors";
-import { hospitals } from "../lib/hospitals";
+import { supabasePublic } from "@/app/lib/supabase/public";
+import type { Doctor, Hospital, Package } from "@/app/lib/types";
 
-const allPackages = [
-  { name: "Knee Replacement", specialty: "Orthopedics", href: "/packages", price: "$4,800" },
-  { name: "Cardiac Bypass", specialty: "Cardiology", href: "/packages", price: "$7,200" },
-  { name: "Liver Transplant", specialty: "Transplants", href: "/packages", price: "On request" },
-  { name: "Spine Surgery", specialty: "Neurology", href: "/packages", price: "$5,500" },
-  { name: "IVF & Fertility", specialty: "Women's Health", href: "/packages", price: "$3,200" },
-  { name: "Dental Implants", specialty: "Dental", href: "/packages", price: "$1,200" },
-];
+export default async function SearchPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string }>;
+}) {
+  const { q = "" } = await searchParams;
+  const query = q.trim().toLowerCase();
 
-function getInitialQuery() {
-  if (typeof window === "undefined") return "";
-  return new URLSearchParams(window.location.search).get("q") ?? "";
-}
+  const [{ data: doctorsData }, { data: hospitalsData }, { data: packagesData }] =
+    await Promise.all([
+      supabasePublic.from("dv_doctors").select("*"),
+      supabasePublic.from("dv_hospitals").select("*"),
+      supabasePublic.from("dv_packages").select("*"),
+    ]);
 
-export default function SearchPage() {
-  const [query, setQuery] = useState(getInitialQuery);
+  const doctors: Doctor[] = (doctorsData as Doctor[]) || [];
+  const hospitals: Hospital[] = (hospitalsData as Hospital[]) || [];
+  const packages: Package[] = (packagesData as Package[]) || [];
 
-  const q = query.trim().toLowerCase();
+  const filteredDoctors = query
+    ? doctors.filter(
+        (d) =>
+          d.name.toLowerCase().includes(query) ||
+          d.specialty.toLowerCase().includes(query) ||
+          d.hospitals?.some((h) => h.toLowerCase().includes(query))
+      )
+    : doctors;
 
-  const filteredDoctors = useMemo(
-    () =>
-      q
-        ? doctors.filter(
-            (d) =>
-              d.name.toLowerCase().includes(q) ||
-              d.specialty.toLowerCase().includes(q) ||
-              d.hospitals.some((h) => h.toLowerCase().includes(q))
-          )
-        : doctors,
-    [q]
-  );
+  const filteredHospitals = query
+    ? hospitals.filter(
+        (h) =>
+          h.name.toLowerCase().includes(query) ||
+          (h.city && h.city.toLowerCase().includes(query)) ||
+          (h.country && h.country.toLowerCase().includes(query)) ||
+          h.specialties?.some((s) => s.toLowerCase().includes(query))
+      )
+    : hospitals;
 
-  const filteredHospitals = useMemo(
-    () =>
-      q
-        ? hospitals.filter(
-            (h) =>
-              h.name.toLowerCase().includes(q) ||
-              h.city.toLowerCase().includes(q) ||
-              h.country.toLowerCase().includes(q) ||
-              h.specialties.some((s) => s.toLowerCase().includes(q))
-          )
-        : hospitals,
-    [q]
-  );
+  const filteredPackages = query
+    ? packages.filter(
+        (p) =>
+          p.name.toLowerCase().includes(query) ||
+          (p.specialty && p.specialty.toLowerCase().includes(query))
+      )
+    : packages;
 
-  const filteredPackages = useMemo(
-    () =>
-      q
-        ? allPackages.filter(
-            (p) =>
-              p.name.toLowerCase().includes(q) ||
-              p.specialty.toLowerCase().includes(q)
-          )
-        : allPackages,
-    [q]
-  );
-
-  const total = filteredDoctors.length + filteredHospitals.length + filteredPackages.length;
+  const total =
+    filteredDoctors.length + filteredHospitals.length + filteredPackages.length;
 
   return (
     <section className="bg-warm-white py-10 lg:py-16">
@@ -79,8 +65,7 @@ export default function SearchPage() {
           <input
             name="q"
             type="text"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            defaultValue={q}
             placeholder="Search by name, specialty, city or condition"
             className="flex-1 rounded-md border border-border bg-white px-4 py-3 text-sm text-dark outline-none focus:border-teal focus:ring-1 focus:ring-teal"
           />
@@ -93,7 +78,7 @@ export default function SearchPage() {
         </form>
 
         <p className="mt-4 text-sm text-muted">
-          {q ? `${total} results for "${query.trim()}"` : "Showing all results"}
+          {query ? `${total} results for "${q.trim()}"` : "Showing all results"}
         </p>
 
         {filteredDoctors.length > 0 && (
@@ -108,7 +93,7 @@ export default function SearchPage() {
                 >
                   <p className="font-heading font-semibold text-navy">{doctor.name}</p>
                   <p className="text-sm text-teal">{doctor.specialty}</p>
-                  <p className="text-sm text-muted">{doctor.hospitals.join(" · ")} · {doctor.experience}</p>
+                  <p className="text-sm text-muted">{doctor.hospitals?.join(" · ")} · {doctor.experience}</p>
                 </Link>
               ))}
             </div>
@@ -127,7 +112,7 @@ export default function SearchPage() {
                 >
                   <p className="font-heading font-semibold text-navy">{hospital.name}</p>
                   <p className="text-sm text-muted">{hospital.city}, {hospital.country}</p>
-                  <p className="text-sm text-muted">{hospital.specialties.join(" · ")}</p>
+                  <p className="text-sm text-muted">{hospital.specialties?.join(" · ")}</p>
                 </Link>
               ))}
             </div>
@@ -140,8 +125,8 @@ export default function SearchPage() {
             <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {filteredPackages.map((pkg) => (
                 <Link
-                  key={pkg.name}
-                  href={pkg.href}
+                  key={pkg.slug}
+                  href={`/packages/${pkg.slug}`}
                   className="rounded-lg border border-border bg-white p-5 shadow-sm transition-shadow hover:shadow-md"
                 >
                   <p className="font-heading font-semibold text-navy">{pkg.name}</p>
@@ -153,7 +138,7 @@ export default function SearchPage() {
           </div>
         )}
 
-        {q && total === 0 && (
+        {query && total === 0 && (
           <p className="mt-10 text-muted">No results found. Try a different keyword.</p>
         )}
       </div>

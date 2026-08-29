@@ -1,14 +1,40 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
+import { createClient } from "@/app/lib/supabase/server";
+import { supabaseAdmin } from "@/app/lib/supabase/admin";
+import type { Case } from "@/app/lib/types";
 
-const patients = [
-  { name: "Sarah Thompson", country: "USA", case: "Knee replacement evaluation", status: "Active" },
-  { name: "Ahmed Al-Rashid", country: "UAE", case: "Cardiac second opinion", status: "Pending reports" },
-  { name: "Mei Lin", country: "Singapore", case: "Oncology follow-up", status: "Active" },
-  { name: "John Carter", country: "UK", case: "Spine surgery review", status: "New" },
-  { name: "Ravi Patel", country: "India", case: "Knee replacement evaluation", status: "Active" },
-];
+export default async function DoctorPatientsPage() {
+  const supabase = await createClient();
 
-export default function DoctorPatientsPage() {
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    redirect("/login");
+  }
+
+  const { data: profile } = await supabase
+    .from("dv_profiles")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+
+  if ((profile as { role?: string } | null)?.role !== "doctor" && (profile as { role?: string } | null)?.role !== "admin") {
+    redirect("/patient/dashboard");
+  }
+
+  const { data: cases } = await supabaseAdmin
+    .from("dv_cases")
+    .select("*, dv_profiles(name, country)")
+    .order("created_at", { ascending: false })
+    .limit(50);
+
+  const caseList: (Case & { dv_profiles?: { name: string; country: string } | null })[] =
+    (cases as unknown as (Case & { dv_profiles?: { name: string; country: string } | null })[]) || [];
+
   return (
     <section className="bg-warm-white py-10 lg:py-16">
       <div className="mx-auto max-w-5xl px-6 lg:px-8">
@@ -35,11 +61,11 @@ export default function DoctorPatientsPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
-                {patients.map((p) => (
-                  <tr key={p.name}>
-                    <td className="py-4 text-dark">{p.name}</td>
-                    <td className="py-4 text-muted">{p.country}</td>
-                    <td className="py-4 text-muted">{p.case}</td>
+                {caseList.map((p) => (
+                  <tr key={p.id}>
+                    <td className="py-4 text-dark">{p.dv_profiles?.name || "—"}</td>
+                    <td className="py-4 text-muted">{p.dv_profiles?.country || p.country || "—"}</td>
+                    <td className="py-4 text-muted">{p.condition || p.category || "—"}</td>
                     <td className="py-4">
                       <span className="rounded-full bg-sage px-2.5 py-1 text-xs text-dark">{p.status}</span>
                     </td>
@@ -50,6 +76,13 @@ export default function DoctorPatientsPage() {
                     </td>
                   </tr>
                 ))}
+                {caseList.length === 0 && (
+                  <tr>
+                    <td className="py-4 text-muted" colSpan={5}>
+                      No patients yet.
+                    </td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>

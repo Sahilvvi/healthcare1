@@ -1,10 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
-import { doctors } from "../../lib/doctors";
-
-export function generateStaticParams() {
-  return doctors.map((doctor) => ({ slug: doctor.slug }));
-}
+import { notFound } from "next/navigation";
+import { supabasePublic } from "@/app/lib/supabase/public";
+import type { Doctor } from "@/app/lib/types";
 
 export default async function DoctorProfilePage({
   params,
@@ -12,8 +10,19 @@ export default async function DoctorProfilePage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const doctor = doctors.find((d) => d.slug === slug);
-  if (!doctor) return null;
+
+  const { data, error } = await supabasePublic
+    .from("dv_doctors")
+    .select("*")
+    .eq("slug", slug)
+    .single();
+
+  if (error || !data) {
+    console.error("Failed to fetch doctor:", error?.message);
+    notFound();
+  }
+
+  const doctor = data as Doctor;
 
   return (
     <section className="bg-warm-white py-16 lg:py-24">
@@ -65,7 +74,7 @@ export default async function DoctorProfilePage({
                 </div>
                 <span className="flex items-center gap-1 rounded-full bg-champagne/40 px-3 py-1 text-sm font-medium text-navy">
                   <StarIcon />
-                  {doctor.rating}
+                  {doctor.rating ?? "-"}
                 </span>
               </div>
 
@@ -77,7 +86,7 @@ export default async function DoctorProfilePage({
                     Qualifications
                   </h3>
                   <ul className="mt-3 list-disc space-y-1 pl-4 text-sm text-muted">
-                    {doctor.qualifications.map((q) => (
+                    {doctor.qualifications?.map((q) => (
                       <li key={q}>{q}</li>
                     ))}
                   </ul>
@@ -87,7 +96,7 @@ export default async function DoctorProfilePage({
                     Areas of expertise
                   </h3>
                   <ul className="mt-3 list-disc space-y-1 pl-4 text-sm text-muted">
-                    {doctor.expertise.map((e) => (
+                    {doctor.expertise?.map((e) => (
                       <li key={e}>{e}</li>
                     ))}
                   </ul>
@@ -99,7 +108,7 @@ export default async function DoctorProfilePage({
                   Associated hospitals
                 </h3>
                 <div className="mt-3 flex flex-wrap gap-2">
-                  {doctor.hospitals.map((h) => (
+                  {doctor.hospitals?.map((h) => (
                     <span
                       key={h}
                       className="rounded-md border border-border bg-warm-white px-3 py-1.5 text-sm text-dark"
@@ -113,7 +122,7 @@ export default async function DoctorProfilePage({
               <div className="mt-8">
                 <h3 className="font-heading font-semibold text-navy">Languages</h3>
                 <p className="mt-2 text-sm text-muted">
-                  {doctor.languages.join(" · ")}
+                  {doctor.languages?.join(" · ")}
                 </p>
               </div>
             </div>

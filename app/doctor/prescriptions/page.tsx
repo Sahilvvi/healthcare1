@@ -1,12 +1,51 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
+import { createClient } from "@/app/lib/supabase/server";
+import { supabaseAdmin } from "@/app/lib/supabase/admin";
+import type { MedicineOrder } from "@/app/lib/types";
 
-const prescriptions = [
-  { patient: "Sarah Thompson", medicine: "Paracetamol 500mg", dosage: "3 times daily", days: "5 days" },
-  { patient: "Ravi Patel", medicine: "Ibuprofen 400mg", dosage: "2 times daily after meals", days: "7 days" },
-  { patient: "Fatima Hassan", medicine: "Atorvastatin 10mg", dosage: "Once at night", days: "30 days" },
-];
+interface MedicineOrderWithProfile extends MedicineOrder {
+  dv_profiles?: { name: string } | null;
+}
 
-export default function DoctorPrescriptionsPage() {
+export default async function DoctorPrescriptionsPage() {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    redirect("/login");
+  }
+
+  const { data: profile } = await supabase
+    .from("dv_profiles")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+
+  const role = (profile as { role?: string } | null)?.role;
+  if (role !== "doctor" && role !== "admin") {
+    redirect("/patient/dashboard");
+  }
+
+  const { data: ordersData } = await supabaseAdmin
+    .from("dv_medicine_orders")
+    .select("*, dv_profiles(name)")
+    .order("created_at", { ascending: false })
+    .limit(50);
+
+  const orders: MedicineOrderWithProfile[] =
+    (ordersData as MedicineOrderWithProfile[]) || [];
+
+  function formatItems(items: unknown): string {
+    if (Array.isArray(items)) return items.map(String).join(", ");
+    if (typeof items === "string") return items;
+    return "—";
+  }
+
   return (
     <section className="bg-warm-white py-10 lg:py-16">
       <div className="mx-auto max-w-5xl px-6 lg:px-8">
@@ -28,24 +67,27 @@ export default function DoctorPrescriptionsPage() {
               <thead className="border-b border-border text-muted">
                 <tr>
                   <th className="py-3 font-medium">Patient</th>
-                  <th className="py-3 font-medium">Medicine</th>
-                  <th className="py-3 font-medium">Dosage</th>
-                  <th className="py-3 font-medium">Duration</th>
-                  <th className="py-3 font-medium"></th>
+                  <th className="py-3 font-medium">Items</th>
+                  <th className="py-3 font-medium">Status</th>
+                  <th className="py-3 font-medium">Total</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border">
-                {prescriptions.map((p) => (
-                  <tr key={p.patient + p.medicine}>
-                    <td className="py-4 text-dark">{p.patient}</td>
-                    <td className="py-4 text-muted">{p.medicine}</td>
-                    <td className="py-4 text-muted">{p.dosage}</td>
-                    <td className="py-4 text-muted">{p.days}</td>
-                    <td className="py-4 text-right">
-                      <button className="text-sm font-medium text-teal hover:text-navy">Edit</button>
+                {orders.map((p) => (
+                  <tr key={p.id}>
+                    <td className="py-4 text-dark">{p.dv_profiles?.name || "—"}</td>
+                    <td className="py-4 text-muted">{formatItems(p.items)}</td>
+                    <td className="py-4">
+                      <span className="rounded-full bg-sage px-2.5 py-1 text-xs text-dark">{p.status}</span>
                     </td>
+                    <td className="py-4 text-muted">{p.total || "—"}</td>
                   </tr>
                 ))}
+                {orders.length === 0 && (
+                  <tr>
+                    <td className="py-4 text-muted" colSpan={4}>No prescriptions yet.</td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
