@@ -21,13 +21,13 @@ export function Hero() {
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-4">
             <Link
-              href="#packages"
+              href="/treatment-plan"
               className="rounded-md bg-navy px-6 py-3.5 text-base font-medium text-white shadow-sm transition-colors hover:bg-teal"
             >
               Get Your Treatment Plan
             </Link>
             <Link
-              href="#treatments"
+              href="/doctors"
               className="rounded-md border border-border bg-white px-6 py-3.5 text-base font-medium text-dark transition-colors hover:border-navy hover:text-navy"
             >
               Explore Treatments

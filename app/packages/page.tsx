@@ -40,41 +40,77 @@ const packages = [
       "Long-term follow-up",
     ],
   },
+  {
+    name: "Spine Surgery",
+    country: "India",
+    price: "$5,500",
+    stay: "8–12 days",
+    includes: [
+      "Neuro/spine consultation",
+      "Procedure",
+      "Physiotherapy",
+      "Hospital stay",
+      "Discharge planning",
+    ],
+  },
+  {
+    name: "IVF & Fertility",
+    country: "India",
+    price: "$3,200",
+    stay: "7–10 days",
+    includes: [
+      "Fertility consultation",
+      "IVF cycle",
+      "Medication support",
+      "Ultrasound monitoring",
+      "Travel coordination",
+    ],
+  },
+  {
+    name: "Dental Implants",
+    country: "India",
+    price: "$1,200",
+    stay: "5–7 days",
+    includes: [
+      "Dental assessment",
+      "Implant placement",
+      "Crown fitting",
+      "Follow-up",
+      "Local transport",
+    ],
+  },
 ];
 
-export function TreatmentPackages() {
+export default function PackagesPage() {
   return (
-    <section id="packages" className="bg-warm-white py-20 lg:py-28">
+    <section className="bg-warm-white py-16 lg:py-24">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
-        <div className="mb-12 flex flex-col justify-between gap-6 md:flex-row md:items-end">
-          <div className="max-w-2xl">
-            <h2 className="font-heading text-3xl font-semibold text-navy md:text-4xl">
-              Transparent treatment packages
-            </h2>
-            <p className="mt-4 text-muted">
-              All-inclusive estimates so you can plan your medical travel with
-              confidence.
-            </p>
-          </div>
-          <Link
-            href="/packages"
-            className="text-base font-medium text-teal hover:text-navy"
-          >
-            View all packages →
-          </Link>
+        <div className="mb-12 max-w-2xl">
+          <p className="text-sm font-semibold uppercase tracking-widest text-teal">
+            All-inclusive estimates
+          </p>
+          <h1 className="mt-2 font-heading text-3xl font-semibold text-navy md:text-4xl">
+            Transparent treatment packages
+          </h1>
+          <p className="mt-3 text-muted">
+            Bundled pricing for common procedures so you can plan your medical
+            travel with confidence. Final costs are confirmed after medical
+            review.
+          </p>
         </div>
+
         <div className="grid gap-6 lg:grid-cols-3">
           {packages.map((pkg) => (
             <div
               key={pkg.name}
-              className="group flex flex-col rounded-lg border border-border bg-white p-6 shadow-sm transition-all duration-300 hover:border-teal/30 hover:shadow-md"
+              className="group flex flex-col rounded-lg border border-border bg-white p-6 shadow-sm transition-all hover:border-teal/30 hover:shadow-md"
             >
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-sm font-medium text-muted">{pkg.country}</p>
-                  <h3 className="mt-1 font-heading text-xl font-semibold text-navy">
+                  <h2 className="mt-1 font-heading text-xl font-semibold text-navy">
                     {pkg.name}
-                  </h3>
+                  </h2>
                 </div>
                 <span className="rounded-full bg-sage px-3 py-1 text-xs font-medium text-navy">
                   {pkg.stay}

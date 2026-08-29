@@ -82,7 +82,7 @@ export default function DoctorsPage() {
                     View Profile
                   </Link>
                   <Link
-                    href="/treatment-plan"
+                    href={`/book/${doctor.slug}`}
                     className="flex-1 rounded-md bg-navy px-4 py-2.5 text-center text-sm font-medium text-white transition-colors hover:bg-teal"
                   >
                     Book Consultation

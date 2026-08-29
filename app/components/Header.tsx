@@ -17,13 +17,16 @@ export function Header() {
           <Link href="/doctors" className="hover:text-teal transition-colors">
             Doctors
           </Link>
-          <Link href="/#packages" className="hover:text-teal transition-colors">
+          <Link href="/hospitals" className="hover:text-teal transition-colors">
+            Hospitals
+          </Link>
+          <Link href="/packages" className="hover:text-teal transition-colors">
             Packages
           </Link>
         </nav>
         <div className="flex items-center gap-3">
           <Link
-            href="#"
+            href="/login"
             className="hidden text-sm font-medium text-dark hover:text-navy sm:inline"
           >
             Log in

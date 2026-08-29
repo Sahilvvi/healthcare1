@@ -40,7 +40,7 @@ export default async function DoctorProfilePage({
               </p>
               <p className="mt-1 text-sm text-muted">{doctor.availability}</p>
               <Link
-                href="/treatment-plan"
+                href={`/book/${doctor.slug}`}
                 className="mt-5 block rounded-md bg-navy px-4 py-3 text-center text-sm font-medium text-white transition-colors hover:bg-teal"
               >
                 Book Consultation
