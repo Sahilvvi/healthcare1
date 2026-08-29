@@ -33,7 +33,14 @@ export function Header() {
           ))}
         </nav>
 
-        <div className="hidden items-center gap-3 md:flex">
+        <div className="hidden items-center gap-4 md:flex">
+          <Link
+            href="/search"
+            aria-label="Search"
+            className="text-dark transition-colors hover:text-teal"
+          >
+            <SearchIcon />
+          </Link>
           <Link
             href="/login"
             className="text-sm font-medium text-dark hover:text-navy"
@@ -73,6 +80,13 @@ export function Header() {
             ))}
             <div className="mt-4 flex flex-col gap-3">
               <Link
+                href="/search"
+                onClick={() => setOpen(false)}
+                className="text-center text-sm font-medium text-dark hover:text-navy"
+              >
+                Search
+              </Link>
+              <Link
                 href="/login"
                 onClick={() => setOpen(false)}
                 className="text-center text-sm font-medium text-dark hover:text-navy"
@@ -91,6 +105,15 @@ export function Header() {
         </div>
       )}
     </header>
+  );
+}
+
+function SearchIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="11" cy="11" r="8" />
+      <line x1="21" y1="21" x2="16.65" y2="16.65" />
+    </svg>
   );
 }
 
