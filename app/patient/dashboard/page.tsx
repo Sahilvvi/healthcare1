@@ -122,6 +122,21 @@ export default function PatientDashboard() {
               Open chat →
             </Link>
           </div>
+
+          <Link
+            href="/patient/case"
+            className="rounded-lg border border-border bg-white p-6 shadow-sm transition-shadow hover:shadow-md"
+          >
+            <h2 className="font-heading text-lg font-semibold text-navy">
+              Share your case
+            </h2>
+            <p className="mt-2 text-sm text-muted">
+              Submit symptoms and reports for a medical review and cost estimate.
+            </p>
+            <span className="mt-4 inline-block text-sm font-medium text-teal hover:text-navy">
+              Start submission →
+            </span>
+          </Link>
         </div>
       </div>
     </section>
