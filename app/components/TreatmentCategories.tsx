@@ -28,7 +28,7 @@ export function TreatmentCategories() {
           {categories.map((category) => (
             <Link
               key={category.slug}
-              href={`/treatments/${category.slug}`}
+              href="/treatment-plan"
               className="group relative overflow-hidden rounded-md transition-all duration-300 hover:shadow-md"
             >
               <div

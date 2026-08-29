@@ -8,16 +8,16 @@ export function Header() {
           Dadashri Vishwa Healthcare
         </Link>
         <nav className="hidden items-center gap-8 text-sm font-medium text-dark md:flex">
-          <Link href="#treatments" className="hover:text-teal transition-colors">
+          <Link href="/treatment-plan" className="hover:text-teal transition-colors">
             Treatments
           </Link>
-          <Link href="#journey" className="hover:text-teal transition-colors">
+          <Link href="/#journey" className="hover:text-teal transition-colors">
             Your Journey
           </Link>
-          <Link href="#doctors" className="hover:text-teal transition-colors">
+          <Link href="/doctors" className="hover:text-teal transition-colors">
             Doctors
           </Link>
-          <Link href="#packages" className="hover:text-teal transition-colors">
+          <Link href="/#packages" className="hover:text-teal transition-colors">
             Packages
           </Link>
         </nav>
@@ -29,7 +29,7 @@ export function Header() {
             Log in
           </Link>
           <Link
-            href="#packages"
+            href="/treatment-plan"
             className="rounded-md bg-navy px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-teal"
           >
             Get Treatment Plan
