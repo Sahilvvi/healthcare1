@@ -1,7 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
+
+const roleRoutes: Record<string, string> = {
+  patient: "/patient/dashboard",
+  doctor: "/doctor/dashboard",
+  admin: "/admin/dashboard",
+};
 
 const roles = [
   { key: "patient", label: "Patient" },
@@ -11,6 +18,7 @@ const roles = [
 
 export default function LoginPage() {
   const [role, setRole] = useState("patient");
+  const router = useRouter();
 
   return (
     <section className="bg-warm-white py-16 lg:py-24">
@@ -39,7 +47,13 @@ export default function LoginPage() {
             ))}
           </div>
 
-          <form className="mt-6 space-y-4" onSubmit={(e) => e.preventDefault()}>
+          <form
+            className="mt-6 space-y-4"
+            onSubmit={(e) => {
+              e.preventDefault();
+              router.push(roleRoutes[role]);
+            }}
+          >
             <div>
               <label className="block text-sm font-medium text-dark">
                 Email

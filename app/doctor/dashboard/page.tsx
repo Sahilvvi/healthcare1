@@ -31,7 +31,7 @@ export default function DoctorDashboard() {
             <p className="mt-2 text-muted">Welcome back, Dr. Menon</p>
           </div>
           <Link
-            href="#"
+            href="/doctor/patients"
             className="rounded-md bg-navy px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-teal"
           >
             + New consultation
@@ -91,17 +91,20 @@ export default function DoctorDashboard() {
           <div className="rounded-lg border border-border bg-white p-6 shadow-sm">
             <h2 className="font-heading text-lg font-semibold text-navy">Quick actions</h2>
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
-              {["Prescriptions", "Case notes", "Teleconsultations", "Follow-ups"].map(
-                (action) => (
-                  <Link
-                    key={action}
-                    href="#"
-                    className="rounded-md border border-border p-4 text-sm font-medium text-dark transition-colors hover:border-navy hover:text-navy"
-                  >
-                    {action}
-                  </Link>
-                )
-              )}
+              {[
+                { label: "Prescriptions", href: "/doctor/prescriptions" },
+                { label: "Case notes", href: "/doctor/case-notes" },
+                { label: "Teleconsultations", href: "/doctor/teleconsultations" },
+                { label: "Follow-ups", href: "/doctor/follow-ups" },
+              ].map((action) => (
+                <Link
+                  key={action.label}
+                  href={action.href}
+                  className="rounded-md border border-border p-4 text-sm font-medium text-dark transition-colors hover:border-navy hover:text-navy"
+                >
+                  {action.label}
+                </Link>
+              ))}
             </div>
           </div>
 

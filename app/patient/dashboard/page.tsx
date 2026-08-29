@@ -62,7 +62,7 @@ export default function PatientDashboard() {
               <p className="mt-1 text-sm text-muted">Tomorrow · 4:30 PM IST</p>
             </div>
             <Link
-              href="#"
+              href="/patient/consultation"
               className="mt-4 inline-block text-sm font-medium text-teal hover:text-navy"
             >
               Join Consultation →
@@ -77,7 +77,7 @@ export default function PatientDashboard() {
               {documents.map((doc) => (
                 <li key={doc} className="flex items-center justify-between text-sm text-dark">
                   <span>{doc}</span>
-                  <Link href="#" className="text-teal hover:text-navy">
+                  <Link href="/patient/documents" className="text-teal hover:text-navy">
                     View
                   </Link>
                 </li>
@@ -115,7 +115,7 @@ export default function PatientDashboard() {
             <p className="mt-1 text-sm text-dark">
               &ldquo;Your visa invitation letter is ready for download.&rdquo;
             </p>
-            <Link href="#" className="mt-4 inline-block text-sm font-medium text-teal hover:text-navy">
+            <Link href="/patient/messages" className="mt-4 inline-block text-sm font-medium text-teal hover:text-navy">
               Open chat →
             </Link>
           </div>
