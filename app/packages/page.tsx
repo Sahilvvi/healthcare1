@@ -1,85 +1,5 @@
 import Link from "next/link";
-
-const packages = [
-  {
-    name: "Knee Replacement",
-    country: "India",
-    price: "$4,800",
-    stay: "10–14 days",
-    includes: [
-      "Specialist consultation",
-      "Surgery",
-      "Hospital stay",
-      "Follow-up",
-      "Care coordination",
-    ],
-  },
-  {
-    name: "Cardiac Bypass",
-    country: "India",
-    price: "$7,200",
-    stay: "12–16 days",
-    includes: [
-      "Cardiologist consultation",
-      "Procedure",
-      "Intensive care",
-      "Rehabilitation plan",
-      "Travel support",
-    ],
-  },
-  {
-    name: "Liver Transplant",
-    country: "India",
-    price: "On request",
-    stay: "30–45 days",
-    includes: [
-      "Transplant evaluation",
-      "Surgery & post-op care",
-      "Donor coordination",
-      "Accommodation support",
-      "Long-term follow-up",
-    ],
-  },
-  {
-    name: "Spine Surgery",
-    country: "India",
-    price: "$5,500",
-    stay: "8–12 days",
-    includes: [
-      "Neuro/spine consultation",
-      "Procedure",
-      "Physiotherapy",
-      "Hospital stay",
-      "Discharge planning",
-    ],
-  },
-  {
-    name: "IVF & Fertility",
-    country: "India",
-    price: "$3,200",
-    stay: "7–10 days",
-    includes: [
-      "Fertility consultation",
-      "IVF cycle",
-      "Medication support",
-      "Ultrasound monitoring",
-      "Travel coordination",
-    ],
-  },
-  {
-    name: "Dental Implants",
-    country: "India",
-    price: "$1,200",
-    stay: "5–7 days",
-    includes: [
-      "Dental assessment",
-      "Implant placement",
-      "Crown fitting",
-      "Follow-up",
-      "Local transport",
-    ],
-  },
-];
+import { packages } from "../lib/packages";
 
 export default function PackagesPage() {
   return (
@@ -102,7 +22,7 @@ export default function PackagesPage() {
         <div className="grid gap-6 lg:grid-cols-3">
           {packages.map((pkg) => (
             <div
-              key={pkg.name}
+              key={pkg.slug}
               className="group flex flex-col rounded-lg border border-border bg-white p-6 shadow-sm transition-all hover:border-teal/30 hover:shadow-md"
             >
               <div className="flex items-start justify-between">
@@ -111,6 +31,7 @@ export default function PackagesPage() {
                   <h2 className="mt-1 font-heading text-xl font-semibold text-navy">
                     {pkg.name}
                   </h2>
+                  <p className="text-sm text-teal">{pkg.specialty}</p>
                 </div>
                 <span className="rounded-full bg-sage px-3 py-1 text-xs font-medium text-navy">
                   {pkg.stay}
@@ -121,7 +42,7 @@ export default function PackagesPage() {
               </p>
               <p className="text-sm text-muted">Starting from</p>
               <ul className="mt-6 flex-1 space-y-3">
-                {pkg.includes.map((item) => (
+                {pkg.includes.slice(0, 5).map((item) => (
                   <li key={item} className="flex items-start gap-3 text-sm">
                     <CheckIcon />
                     <span className="text-dark">{item}</span>
@@ -129,10 +50,10 @@ export default function PackagesPage() {
                 ))}
               </ul>
               <Link
-                href="/treatment-plan"
+                href={`/packages/${pkg.slug}`}
                 className="mt-8 block rounded-md border border-navy bg-navy px-5 py-3 text-center text-sm font-medium text-white transition-colors hover:bg-teal"
               >
-                View Treatment Plan
+                View package
               </Link>
             </div>
           ))}
