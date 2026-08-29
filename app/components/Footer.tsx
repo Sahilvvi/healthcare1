@@ -4,8 +4,8 @@ export function Footer() {
   return (
     <footer className="bg-navy py-14 text-white lg:py-20">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
-        <div className="grid gap-10 md:grid-cols-4">
-          <div className="md:col-span-2">
+        <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-5">
+          <div className="lg:col-span-2">
             <Link href="/" className="font-heading text-xl font-semibold">
               Dadashri Vishwa Healthcare
             </Link>
@@ -14,6 +14,11 @@ export function Footer() {
               international patients with trusted doctors, hospitals and care
               coordinators in India.
             </p>
+            <div className="mt-6 space-y-2 text-sm text-white/70">
+              <p>care@dadashrihealth.com</p>
+              <p>+91 80 1234 5678</p>
+              <p>Mon – Sat, 9:00 AM – 7:00 PM IST</p>
+            </div>
           </div>
           <div>
             <h4 className="font-heading text-sm font-semibold uppercase tracking-wider">
@@ -70,6 +75,23 @@ export function Footer() {
               <li>
                 <Link href="/contact" className="hover:text-white">
                   Contact
+                </Link>
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="font-heading text-sm font-semibold uppercase tracking-wider">
+              Legal
+            </h4>
+            <ul className="mt-4 space-y-3 text-sm text-white/70">
+              <li>
+                <Link href="/privacy" className="hover:text-white">
+                  Privacy
+                </Link>
+              </li>
+              <li>
+                <Link href="/terms" className="hover:text-white">
+                  Terms
                 </Link>
               </li>
             </ul>
