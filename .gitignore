@@ -37,6 +37,9 @@ yarn-error.log*
 # vercel
 .vercel
 
+# temporary introspection files
+swagger.json
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

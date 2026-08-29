@@ -1,12 +1,45 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
+import { createClient } from "@/app/lib/supabase/server";
+import { supabaseAdmin } from "@/app/lib/supabase/admin";
+import type { Appointment } from "@/app/lib/types";
 
-const teleconsultations = [
-  { patient: "Sarah Thompson", time: "09:00 AM", date: "Tomorrow", type: "Video" },
-  { patient: "John Carter", time: "02:00 PM", date: "Tomorrow", type: "Video" },
-  { patient: "Mei Lin", time: "11:45 AM", date: "Today", type: "Follow-up", completed: true },
-];
+interface AppointmentWithPatient extends Appointment {
+  dv_cases?: { dv_profiles?: { name: string } | null } | null;
+  dv_doctors?: { name: string; specialty: string } | null;
+}
 
-export default function DoctorTeleconsultationsPage() {
+export default async function DoctorTeleconsultationsPage() {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    redirect("/login");
+  }
+
+  const { data: profile } = await supabase
+    .from("dv_profiles")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+
+  const role = (profile as { role?: string } | null)?.role;
+  if (role !== "doctor" && role !== "admin") {
+    redirect("/patient/dashboard");
+  }
+
+  const { data: appointmentsData } = await supabaseAdmin
+    .from("dv_appointments")
+    .select("*, dv_cases!inner(dv_profiles(name)), dv_doctors(name, specialty)")
+    .order("scheduled_at", { ascending: true })
+    .limit(50);
+
+  const appointments: AppointmentWithPatient[] = (appointmentsData as AppointmentWithPatient[]) || [];
+
   return (
     <section className="bg-warm-white py-10 lg:py-16">
       <div className="mx-auto max-w-4xl px-6 lg:px-8">
@@ -21,17 +54,22 @@ export default function DoctorTeleconsultationsPage() {
         </div>
 
         <div className="space-y-4">
-          {teleconsultations.map((t) => (
-            <div key={t.patient + t.time} className="flex items-center justify-between rounded-lg border border-border bg-white p-5 shadow-sm">
+          {appointments.map((t) => (
+            <div key={t.id} className="flex items-center justify-between rounded-lg border border-border bg-white p-5 shadow-sm">
               <div>
-                <p className="font-medium text-dark">{t.patient}</p>
-                <p className="text-sm text-muted">{t.date} · {t.time} · {t.type}</p>
+                <p className="font-medium text-dark">{t.dv_cases?.dv_profiles?.name || "Patient"}</p>
+                <p className="text-sm text-muted">
+                  {t.scheduled_at ? new Date(t.scheduled_at).toLocaleString() : "TBC"} · {t.type}
+                </p>
               </div>
-              <span className={`rounded-full px-3 py-1 text-xs font-medium ${t.completed ? "bg-sage text-dark" : "bg-champagne/40 text-navy"}`}>
-                {t.completed ? "Completed" : "Upcoming"}
+              <span className={`rounded-full px-3 py-1 text-xs font-medium ${t.status === "COMPLETED" ? "bg-sage text-dark" : "bg-champagne/40 text-navy"}`}>
+                {t.status}
               </span>
             </div>
           ))}
+          {appointments.length === 0 && (
+            <p className="text-sm text-muted">No teleconsultations scheduled.</p>
+          )}
         </div>
       </div>
     </section>

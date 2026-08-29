@@ -1,10 +1,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { packages, type Package } from "../../lib/packages";
-
-export function generateStaticParams() {
-  return packages.map((pkg) => ({ slug: pkg.slug }));
-}
+import { supabasePublic } from "@/app/lib/supabase/public";
+import type { Package } from "@/app/lib/types";
 
 export default async function PackageDetailPage({
   params,
@@ -12,8 +9,19 @@ export default async function PackageDetailPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const pkg = packages.find((p) => p.slug === slug) as Package | undefined;
-  if (!pkg) return notFound();
+
+  const { data, error } = await supabasePublic
+    .from("dv_packages")
+    .select("*")
+    .eq("slug", slug)
+    .single();
+
+  if (error || !data) {
+    console.error("Failed to fetch package:", error?.message);
+    notFound();
+  }
+
+  const pkg = data as Package;
 
   return (
     <section className="bg-warm-white py-16 lg:py-24">
@@ -43,7 +51,7 @@ export default async function PackageDetailPage({
             <div className="rounded-md border border-border bg-warm-white p-5">
               <h2 className="font-heading font-semibold text-navy">What’s included</h2>
               <ul className="mt-4 space-y-3">
-                {pkg.includes.map((item) => (
+                {pkg.includes?.map((item) => (
                   <li key={item} className="flex items-start gap-3 text-sm text-dark">
                     <CheckIcon />
                     {item}
@@ -61,7 +69,7 @@ export default async function PackageDetailPage({
                 </li>
                 <li className="flex justify-between text-dark">
                   <span className="text-muted">Available hospitals</span>
-                  <span className="font-medium">{pkg.hospitals.length}</span>
+                  <span className="font-medium">{pkg.hospitals?.length ?? 0}</span>
                 </li>
                 <li className="flex justify-between text-dark">
                   <span className="text-muted">Medical review</span>
@@ -78,7 +86,7 @@ export default async function PackageDetailPage({
           <div className="mt-8">
             <h2 className="font-heading font-semibold text-navy">Recommended hospitals</h2>
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
-              {pkg.hospitals.map((hospital) => (
+              {pkg.hospitals?.map((hospital) => (
                 <Link
                   key={hospital}
                   href="/hospitals"

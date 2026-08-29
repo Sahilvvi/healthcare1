@@ -1,11 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { hospitals } from "../../lib/hospitals";
-
-export function generateStaticParams() {
-  return hospitals.map((hospital) => ({ slug: hospital.slug }));
-}
+import { supabasePublic } from "@/app/lib/supabase/public";
+import type { Hospital } from "@/app/lib/types";
 
 export default async function HospitalProfilePage({
   params,
@@ -13,8 +10,19 @@ export default async function HospitalProfilePage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const hospital = hospitals.find((h) => h.slug === slug);
-  if (!hospital) notFound();
+
+  const { data, error } = await supabasePublic
+    .from("dv_hospitals")
+    .select("*")
+    .eq("slug", slug)
+    .single();
+
+  if (error || !data) {
+    console.error("Failed to fetch hospital:", error?.message);
+    notFound();
+  }
+
+  const hospital = data as Hospital;
 
   return (
     <section className="bg-warm-white py-16 lg:py-24">
@@ -64,7 +72,7 @@ export default async function HospitalProfilePage({
                   Specialties
                 </h2>
                 <div className="mt-3 flex flex-wrap gap-2">
-                  {hospital.specialties.map((s) => (
+                  {hospital.specialties?.map((s) => (
                     <span
                       key={s}
                       className="rounded-md border border-border bg-warm-white px-3 py-1.5 text-sm text-dark"
@@ -78,7 +86,7 @@ export default async function HospitalProfilePage({
                   Facilities
                 </h2>
                 <ul className="mt-3 list-disc space-y-1 pl-4 text-sm text-muted">
-                  {hospital.facilities.map((f) => (
+                  {hospital.facilities?.map((f) => (
                     <li key={f}>{f}</li>
                   ))}
                 </ul>
@@ -96,7 +104,7 @@ export default async function HospitalProfilePage({
                   <div>
                     <p className="text-muted">Accreditations</p>
                     <p className="font-medium text-dark">
-                      {hospital.accreditations.join(" · ")}
+                      {hospital.accreditations?.join(" · ")}
                     </p>
                   </div>
                   <div>

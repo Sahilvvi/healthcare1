@@ -1,11 +1,45 @@
-const orders = [
-  { id: "ORD-2841", patient: "Sarah Thompson", items: "Atorvastatin, Metformin", status: "Out for delivery", total: "₹1,240" },
-  { id: "ORD-2840", patient: "Ahmed Al-Rashid", items: "Vitamin D3, Calcium", status: "Packed", total: "₹680" },
-  { id: "ORD-2839", patient: "Mei Lin", items: "Prescription refill", status: "Delivered", total: "₹2,100" },
-  { id: "ORD-2838", patient: "John Carter", items: "Post-op meds", status: "Prescription received", total: "₹3,450" },
-];
+import { redirect } from "next/navigation";
+import { createClient } from "@/app/lib/supabase/server";
+import { supabaseAdmin } from "@/app/lib/supabase/admin";
+import type { MedicineOrder } from "@/app/lib/types";
 
-export default function AdminOrdersPage() {
+export default async function AdminOrdersPage() {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    redirect("/login");
+  }
+
+  const { data: profile } = await supabase
+    .from("dv_profiles")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+
+  const role = (profile as { role?: string } | null)?.role;
+  if (role !== "admin" && role !== "doctor") {
+    redirect("/patient/dashboard");
+  }
+
+  const { data: ordersData } = await supabaseAdmin
+    .from("dv_medicine_orders")
+    .select("*, dv_profiles(name)")
+    .order("created_at", { ascending: false });
+
+  const orders: (MedicineOrder & { dv_profiles?: { name: string } | null })[] =
+    (ordersData as (MedicineOrder & { dv_profiles?: { name: string } | null })[]) || [];
+
+  function formatItems(items: unknown): string {
+    if (Array.isArray(items)) return items.map(String).join(", ");
+    if (typeof items === "string") return items;
+    return JSON.stringify(items);
+  }
+
   return (
     <section>
       <div className="mb-6">
@@ -27,15 +61,22 @@ export default function AdminOrdersPage() {
           <tbody className="divide-y divide-border">
             {orders.map((order) => (
               <tr key={order.id}>
-                <td className="px-4 py-3 font-medium text-dark">{order.id}</td>
-                <td className="px-4 py-3 text-muted">{order.patient}</td>
-                <td className="px-4 py-3 text-muted">{order.items}</td>
+                <td className="px-4 py-3 font-medium text-dark">{order.id.slice(0, 8).toUpperCase()}</td>
+                <td className="px-4 py-3 text-muted">{order.dv_profiles?.name || "—"}</td>
+                <td className="px-4 py-3 text-muted">{formatItems(order.items)}</td>
                 <td className="px-4 py-3">
                   <span className="rounded-full bg-sage px-2.5 py-1 text-xs text-dark">{order.status}</span>
                 </td>
-                <td className="px-4 py-3 text-muted">{order.total}</td>
+                <td className="px-4 py-3 text-muted">{order.total || "—"}</td>
               </tr>
             ))}
+            {orders.length === 0 && (
+              <tr>
+                <td className="px-4 py-3 text-muted" colSpan={5}>
+                  No orders yet.
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>

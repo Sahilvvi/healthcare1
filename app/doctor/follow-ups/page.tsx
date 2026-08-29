@@ -1,12 +1,46 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
+import { createClient } from "@/app/lib/supabase/server";
+import { supabaseAdmin } from "@/app/lib/supabase/admin";
+import type { Appointment } from "@/app/lib/types";
 
-const followUps = [
-  { patient: "Ravi Patel", due: "30 Aug 2026", reason: "Knee replacement recovery check" },
-  { patient: "Fatima Hassan", due: "02 Sep 2026", reason: "Cardiac second opinion outcome" },
-  { patient: "Mei Lin", due: "05 Sep 2026", reason: "Post-chemo blood count review" },
-];
+interface FollowUpAppointment extends Appointment {
+  dv_cases?: { dv_profiles?: { name: string } | null } | null;
+  dv_doctors?: { name: string; specialty: string } | null;
+}
 
-export default function DoctorFollowUpsPage() {
+export default async function DoctorFollowUpsPage() {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    redirect("/login");
+  }
+
+  const { data: profile } = await supabase
+    .from("dv_profiles")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+
+  const role = (profile as { role?: string } | null)?.role;
+  if (role !== "doctor" && role !== "admin") {
+    redirect("/patient/dashboard");
+  }
+
+  const { data: appointmentsData } = await supabaseAdmin
+    .from("dv_appointments")
+    .select("*, dv_cases!inner(dv_profiles(name)), dv_doctors(name, specialty)")
+    .ilike("type", "%follow%")
+    .order("scheduled_at", { ascending: true })
+    .limit(50);
+
+  const followUps: FollowUpAppointment[] = (appointmentsData as FollowUpAppointment[]) || [];
+
   return (
     <section className="bg-warm-white py-10 lg:py-16">
       <div className="mx-auto max-w-4xl px-6 lg:px-8">
@@ -22,14 +56,19 @@ export default function DoctorFollowUpsPage() {
 
         <div className="space-y-4">
           {followUps.map((f) => (
-            <div key={f.patient} className="rounded-lg border border-border bg-white p-5 shadow-sm">
+            <div key={f.id} className="rounded-lg border border-border bg-white p-5 shadow-sm">
               <div className="flex items-center justify-between">
-                <p className="font-medium text-dark">{f.patient}</p>
-                <span className="text-xs text-muted">Due {f.due}</span>
+                <p className="font-medium text-dark">{f.dv_cases?.dv_profiles?.name || "Patient"}</p>
+                <span className="text-xs text-muted">
+                  Due {f.scheduled_at ? new Date(f.scheduled_at).toLocaleDateString() : "TBC"}
+                </span>
               </div>
-              <p className="mt-1 text-sm text-muted">{f.reason}</p>
+              <p className="mt-1 text-sm text-muted">{f.dv_doctors?.name || "Doctor"} · {f.type}</p>
             </div>
           ))}
+          {followUps.length === 0 && (
+            <p className="text-sm text-muted">No follow-ups scheduled.</p>
+          )}
         </div>
       </div>
     </section>

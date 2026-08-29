@@ -1,19 +1,43 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
+import { createClient } from "@/app/lib/supabase/server";
+import type { MedicineOrder } from "@/app/lib/types";
 
-const medicines = [
-  { name: "Atorvastatin 10mg", qty: "30 tablets", dosage: "Once daily" },
-  { name: "Metformin 500mg", qty: "60 tablets", dosage: "Twice daily" },
-  { name: "Vitamin D3 60K IU", qty: "4 capsules", dosage: "Weekly" },
-];
+export default async function MedicinesPage() {
+  const supabase = await createClient();
 
-const tracking = [
-  { label: "Prescription received", time: "29 Aug, 9:00 AM", done: true },
-  { label: "Order packed", time: "29 Aug, 11:30 AM", done: true },
-  { label: "Out for delivery", time: "29 Aug, 2:15 PM", done: true },
-  { label: "Delivered", time: "Estimated today, 6:00 PM", done: false },
-];
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
 
-export default function MedicinesPage() {
+  if (userError || !user) {
+    redirect("/login");
+  }
+
+  const { data: ordersData } = await supabase
+    .from("dv_medicine_orders")
+    .select("*")
+    .eq("patient_id", user.id)
+    .order("created_at", { ascending: false })
+    .limit(10);
+
+  const orders: MedicineOrder[] = (ordersData as MedicineOrder[]) || [];
+  const latest = orders[0];
+
+  const items = Array.isArray(latest?.items)
+    ? (latest.items as { name?: string; qty?: string; dosage?: string }[])
+    : [];
+
+  const tracking = latest
+    ? [
+        { label: "Prescription received", done: true },
+        { label: "Order packed", done: ["PACKED", "OUT_FOR_DELIVERY", "DELIVERED"].includes(latest.status) },
+        { label: "Out for delivery", done: ["OUT_FOR_DELIVERY", "DELIVERED"].includes(latest.status) },
+        { label: "Delivered", done: latest.status === "DELIVERED" },
+      ]
+    : [];
+
   return (
     <section className="bg-warm-white py-10 lg:py-16">
       <div className="mx-auto max-w-5xl px-6 lg:px-8">
@@ -21,59 +45,59 @@ export default function MedicinesPage() {
           ← Back to dashboard
         </Link>
 
-        <h1 className="mt-6 font-heading text-3xl font-semibold text-navy">
-          Medicines
-        </h1>
+        <h1 className="mt-6 font-heading text-3xl font-semibold text-navy">Medicines</h1>
 
         <div className="mt-8 grid gap-6 lg:grid-cols-2">
           <div className="rounded-lg border border-border bg-white p-6 shadow-sm">
-            <h2 className="font-heading text-lg font-semibold text-navy">
-              Prescription
-            </h2>
-            <p className="mt-1 text-sm text-muted">Dr. Ananya Sharma · 28 Aug 2026</p>
-
-            <div className="mt-6 space-y-3">
-              {medicines.map((med) => (
-                <div
-                  key={med.name}
-                  className="flex items-center justify-between rounded-md border border-border p-4"
-                >
-                  <div>
-                    <p className="font-medium text-dark">{med.name}</p>
-                    <p className="text-sm text-muted">{med.dosage}</p>
+            <h2 className="font-heading text-lg font-semibold text-navy">Latest prescription</h2>
+            {items.length > 0 ? (
+              <div className="mt-6 space-y-3">
+                {items.map((med, i) => (
+                  <div
+                    key={i}
+                    className="flex items-center justify-between rounded-md border border-border p-4"
+                  >
+                    <div>
+                      <p className="font-medium text-dark">{med.name || "Medicine"}</p>
+                      <p className="text-sm text-muted">{med.dosage || ""}</p>
+                    </div>
+                    <span className="text-sm text-muted">{med.qty || ""}</span>
                   </div>
-                  <span className="text-sm text-muted">{med.qty}</span>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <p className="mt-6 text-sm text-muted">No prescriptions yet.</p>
+            )}
           </div>
 
           <div className="rounded-lg border border-border bg-white p-6 shadow-sm">
-            <h2 className="font-heading text-lg font-semibold text-navy">
-              Order tracking
-            </h2>
-            <div className="mt-6 space-y-0">
-              {tracking.map((step, i) => (
-                <div key={step.label} className="relative flex gap-4 pb-8 last:pb-0">
-                  <div className="flex flex-col items-center">
-                    <div
-                      className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-semibold ${
-                        step.done ? "bg-teal text-white" : "bg-sage text-muted"
-                      }`}
-                    >
-                      {step.done ? "✓" : i + 1}
+            <h2 className="font-heading text-lg font-semibold text-navy">Order tracking</h2>
+            {latest ? (
+              <div className="mt-6 space-y-0">
+                {tracking.map((step, i) => (
+                  <div key={step.label} className="relative flex gap-4 pb-8 last:pb-0">
+                    <div className="flex flex-col items-center">
+                      <div
+                        className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-semibold ${
+                          step.done ? "bg-teal text-white" : "bg-sage text-muted"
+                        }`}
+                      >
+                        {step.done ? "✓" : i + 1}
+                      </div>
+                      {i < tracking.length - 1 && (
+                        <div className="mt-2 h-full w-px bg-border" />
+                      )}
                     </div>
-                    {i < tracking.length - 1 && (
-                      <div className="mt-2 h-full w-px bg-border" />
-                    )}
+                    <div>
+                      <p className="font-medium text-dark">{step.label}</p>
+                      <p className="text-sm text-muted">{step.done ? "Done" : "Pending"}</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="font-medium text-dark">{step.label}</p>
-                    <p className="text-sm text-muted">{step.time}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <p className="mt-6 text-sm text-muted">No medicine orders yet.</p>
+            )}
           </div>
         </div>
       </div>

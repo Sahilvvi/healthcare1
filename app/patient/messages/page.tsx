@@ -1,29 +1,45 @@
-"use client";
-
 import Link from "next/link";
+import { redirect } from "next/navigation";
+import { createClient } from "@/app/lib/supabase/server";
+import type { Message } from "@/app/lib/types";
+import { MessageForm } from "./MessageForm";
 
-const messages = [
-  {
-    sender: "Care Coordinator",
-    text: "Your visa invitation letter is ready for download.",
-    time: "Today, 09:14 AM",
-    me: false,
-  },
-  {
-    sender: "You",
-    text: "Thank you. Do I need to book the airport pickup myself?",
-    time: "Today, 09:42 AM",
-    me: true,
-  },
-  {
-    sender: "Care Coordinator",
-    text: "No, we have confirmed your pickup for 12 Sep at 06:30 AM. The driver will be at the arrivals gate.",
-    time: "Today, 10:05 AM",
-    me: false,
-  },
-];
+interface MessageWithSender extends Message {
+  dv_profiles?: { name: string } | null;
+}
 
-export default function PatientMessagesPage() {
+export default async function PatientMessagesPage() {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    redirect("/login");
+  }
+
+  const { data: cases } = await supabase
+    .from("dv_cases")
+    .select("id")
+    .eq("patient_id", user.id)
+    .order("created_at", { ascending: false })
+    .limit(1);
+
+  const activeCase = cases?.[0];
+
+  let messages: MessageWithSender[] = [];
+  if (activeCase) {
+    const { data } = await supabase
+      .from("dv_messages")
+      .select("*, dv_profiles(name)")
+      .eq("case_id", activeCase.id)
+      .order("created_at", { ascending: true })
+      .limit(100);
+    messages = (data as MessageWithSender[]) || [];
+  }
+
   return (
     <section className="bg-warm-white py-10 lg:py-16">
       <div className="mx-auto max-w-3xl px-6 lg:px-8">
@@ -46,43 +62,40 @@ export default function PatientMessagesPage() {
 
         <div className="rounded-lg border border-border bg-white p-6 shadow-sm">
           <div className="space-y-6">
-            {messages.map((msg, i) => (
-              <div
-                key={i}
-                className={`flex flex-col ${msg.me ? "items-end" : "items-start"}`}
-              >
-                <p className="text-xs text-muted">
-                  {msg.sender} · {msg.time}
-                </p>
-                <p
-                  className={`mt-1 max-w-md rounded-md px-4 py-2.5 text-sm ${
-                    msg.me
-                      ? "bg-navy text-white"
-                      : "bg-sage/40 text-dark"
-                  }`}
-                >
-                  {msg.text}
-                </p>
-              </div>
-            ))}
+            {messages.length > 0 ? (
+              messages.map((msg) => {
+                const isMe = msg.sender_id === user.id;
+                return (
+                  <div
+                    key={msg.id}
+                    className={`flex flex-col ${isMe ? "items-end" : "items-start"}`}
+                  >
+                    <p className="text-xs text-muted">
+                      {isMe ? "You" : msg.dv_profiles?.name || "Care team"} ·{" "}
+                      {new Date(msg.created_at).toLocaleString()}
+                    </p>
+                    <p
+                      className={`mt-1 max-w-md rounded-md px-4 py-2.5 text-sm ${
+                        isMe
+                          ? "bg-navy text-white"
+                          : "bg-sage/40 text-dark"
+                      }`}
+                    >
+                      {msg.content}
+                    </p>
+                  </div>
+                );
+              })
+            ) : (
+              <p className="text-sm text-muted">No messages yet.</p>
+            )}
           </div>
 
-          <form
-            className="mt-8 flex gap-3"
-            onSubmit={(e) => e.preventDefault()}
-          >
-            <input
-              type="text"
-              placeholder="Type a message..."
-              className="flex-1 rounded-md border border-border px-4 py-2.5 text-sm outline-none focus:border-teal"
-            />
-            <button
-              type="submit"
-              className="rounded-md bg-navy px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-teal"
-            >
-              Send
-            </button>
-          </form>
+          {activeCase ? (
+            <MessageForm caseId={activeCase.id} />
+          ) : (
+            <p className="mt-6 text-sm text-muted">Submit a case to start messaging.</p>
+          )}
         </div>
       </div>
     </section>

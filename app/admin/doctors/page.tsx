@@ -1,7 +1,39 @@
 import Link from "next/link";
-import { doctors } from "../../lib/doctors";
+import { redirect } from "next/navigation";
+import { createClient } from "@/app/lib/supabase/server";
+import { supabaseAdmin } from "@/app/lib/supabase/admin";
+import type { Doctor } from "@/app/lib/types";
 
-export default function AdminDoctorsPage() {
+export default async function AdminDoctorsPage() {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    redirect("/login");
+  }
+
+  const { data: profile } = await supabase
+    .from("dv_profiles")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+
+  const role = (profile as { role?: string } | null)?.role;
+  if (role !== "admin" && role !== "doctor") {
+    redirect("/patient/dashboard");
+  }
+
+  const { data: doctorsData } = await supabaseAdmin
+    .from("dv_doctors")
+    .select("*")
+    .order("name");
+
+  const doctors: Doctor[] = (doctorsData as Doctor[]) || [];
+
   return (
     <section>
       <div className="mb-6">
@@ -12,7 +44,7 @@ export default function AdminDoctorsPage() {
       <div className="grid gap-4">
         {doctors.map((doctor) => (
           <div
-            key={doctor.slug}
+            key={doctor.id}
             className="flex flex-col justify-between gap-4 rounded-lg border border-border bg-white p-5 shadow-sm sm:flex-row sm:items-center"
           >
             <div>
@@ -33,6 +65,9 @@ export default function AdminDoctorsPage() {
             </div>
           </div>
         ))}
+        {doctors.length === 0 && (
+          <p className="text-muted">No doctors found. Seed the database first.</p>
+        )}
       </div>
     </section>
   );

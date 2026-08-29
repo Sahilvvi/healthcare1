@@ -1,14 +1,46 @@
-const patients = [
-  { name: "Sarah Thompson", country: "USA", case: "Knee Replacement", stage: "Medical Review", coordinator: "Asha R." },
-  { name: "Ahmed Al-Rashid", country: "UAE", case: "Cardiac Consultation", stage: "Consultation", coordinator: "Vikram S." },
-  { name: "Mei Lin", country: "Singapore", case: "Oncology Evaluation", stage: "Treatment", coordinator: "Priya M." },
-  { name: "John Carter", country: "UK", case: "Neurology Review", stage: "Plan", coordinator: "Asha R." },
-  { name: "Ravi Patel", country: "India", case: "Wellness Checkup", stage: "Recovery", coordinator: "Vikram S." },
-];
+import { redirect } from "next/navigation";
+import { createClient } from "@/app/lib/supabase/server";
+import { supabaseAdmin } from "@/app/lib/supabase/admin";
+import type { Case, Profile } from "@/app/lib/types";
 
 const stages = ["New", "Medical Review", "Consultation", "Plan", "Treatment", "Recovery"];
 
-export default function AdminPatientsPage() {
+export default async function AdminPatientsPage() {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    redirect("/login");
+  }
+
+  const { data: profile } = await supabase
+    .from("dv_profiles")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+
+  const role = (profile as { role?: string } | null)?.role;
+  if (role !== "admin" && role !== "doctor") {
+    redirect("/patient/dashboard");
+  }
+
+  const { data: patients } = await supabaseAdmin
+    .from("dv_profiles")
+    .select("*")
+    .eq("role", "patient")
+    .order("created_at", { ascending: false });
+
+  const { data: cases } = await supabaseAdmin
+    .from("dv_cases")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  const casesMap = new Map((cases || []).map((c: Case) => [c.patient_id, c]));
+
   return (
     <section>
       <div className="mb-6">
@@ -28,19 +60,29 @@ export default function AdminPatientsPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
-            {patients.map((patient) => (
-              <tr key={patient.name}>
-                <td className="px-4 py-3 font-medium text-dark">{patient.name}</td>
-                <td className="px-4 py-3 text-muted">{patient.country}</td>
-                <td className="px-4 py-3 text-muted">{patient.case}</td>
-                <td className="px-4 py-3">
-                  <span className="rounded-full bg-sage px-2.5 py-1 text-xs text-dark">
-                    {patient.stage}
-                  </span>
+            {(patients as Profile[] || []).map((patient) => {
+              const patientCase = casesMap.get(patient.id);
+              return (
+                <tr key={patient.id}>
+                  <td className="px-4 py-3 font-medium text-dark">{patient.name}</td>
+                  <td className="px-4 py-3 text-muted">{patient.country || "—"}</td>
+                  <td className="px-4 py-3 text-muted">{patientCase?.category || "—"}</td>
+                  <td className="px-4 py-3">
+                    <span className="rounded-full bg-sage px-2.5 py-1 text-xs text-dark">
+                      {patientCase?.status || "NEW"}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3 text-muted">{patientCase?.coordinator_id ? "Assigned" : "—"}</td>
+                </tr>
+              );
+            })}
+            {(!patients || patients.length === 0) && (
+              <tr>
+                <td className="px-4 py-3 text-muted" colSpan={5}>
+                  No patients yet.
                 </td>
-                <td className="px-4 py-3 text-muted">{patient.coordinator}</td>
               </tr>
-            ))}
+            )}
           </tbody>
         </table>
       </div>

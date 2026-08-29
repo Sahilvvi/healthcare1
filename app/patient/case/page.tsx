@@ -1,7 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { createClient } from "@/app/lib/supabase/client";
+import { submitCase } from "./actions";
 
 const categories = [
   "Cardiology",
@@ -16,20 +19,42 @@ const categories = [
 
 export default function PatientCasePage() {
   const [submitted, setSubmitted] = useState(false);
-  const [form, setForm] = useState({
-    category: "",
-    condition: "",
-    previousTreatment: "",
-    reports: null as FileList | null,
-    city: "",
-    country: "",
-  });
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (form.category && form.condition && form.country) {
-      setSubmitted(true);
+    setError(null);
+    setLoading(true);
+
+    const formData = new FormData(e.currentTarget);
+    const result = await submitCase(formData);
+
+    if (result.error) {
+      setError(result.error);
+      setLoading(false);
+      return;
     }
+
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
+
+    const supabase = createClient();
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (signInError) {
+      setError("Case created. Please sign in to continue.");
+      setSubmitted(true);
+      setLoading(false);
+      return;
+    }
+
+    router.push("/patient/dashboard");
+    router.refresh();
   }
 
   if (submitted) {
@@ -69,18 +94,91 @@ export default function PatientCasePage() {
           Share your case
         </h1>
         <p className="mt-2 text-muted">
-          Tell us about your condition and upload any medical reports. Your information is encrypted and only shared with your assigned medical team.
+          Tell us about your condition. Your information is encrypted and only shared with your assigned medical team.
         </p>
 
+        {error && (
+          <p className="mt-4 rounded-md bg-red-50 px-3 py-2 text-sm text-red-700">
+            {error}
+          </p>
+        )}
+
         <form onSubmit={handleSubmit} className="mt-8 space-y-6 rounded-lg border border-border bg-white p-6 shadow-sm lg:p-8">
+          <div className="grid gap-6 sm:grid-cols-2">
+            <div>
+              <label htmlFor="name" className="block text-sm font-medium text-dark">Full name</label>
+              <input
+                id="name"
+                name="name"
+                type="text"
+                required
+                className="mt-2 w-full rounded-md border border-border bg-warm-white px-4 py-2.5 text-sm text-dark outline-none focus:border-teal"
+                placeholder="Sarah Johnson"
+              />
+            </div>
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-dark">Email</label>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                required
+                className="mt-2 w-full rounded-md border border-border bg-warm-white px-4 py-2.5 text-sm text-dark outline-none focus:border-teal"
+                placeholder="you@example.com"
+              />
+            </div>
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium text-dark">Password</label>
+              <input
+                id="password"
+                name="password"
+                type="password"
+                required
+                minLength={6}
+                className="mt-2 w-full rounded-md border border-border bg-warm-white px-4 py-2.5 text-sm text-dark outline-none focus:border-teal"
+                placeholder="••••••••"
+              />
+            </div>
+            <div>
+              <label htmlFor="phone" className="block text-sm font-medium text-dark">Phone</label>
+              <input
+                id="phone"
+                name="phone"
+                type="tel"
+                className="mt-2 w-full rounded-md border border-border bg-warm-white px-4 py-2.5 text-sm text-dark outline-none focus:border-teal"
+                placeholder="+1 555 123 4567"
+              />
+            </div>
+            <div>
+              <label htmlFor="country" className="block text-sm font-medium text-dark">Your country</label>
+              <input
+                id="country"
+                name="country"
+                type="text"
+                required
+                className="mt-2 w-full rounded-md border border-border bg-warm-white px-4 py-2.5 text-sm text-dark outline-none focus:border-teal"
+                placeholder="USA"
+              />
+            </div>
+            <div>
+              <label htmlFor="city" className="block text-sm font-medium text-dark">Preferred city in India</label>
+              <input
+                id="city"
+                name="city"
+                type="text"
+                className="mt-2 w-full rounded-md border border-border bg-warm-white px-4 py-2.5 text-sm text-dark outline-none focus:border-teal"
+                placeholder="Chennai"
+              />
+            </div>
+          </div>
+
           <div>
             <label htmlFor="category" className="block text-sm font-medium text-dark">Treatment category</label>
             <select
               id="category"
-              value={form.category}
-              onChange={(e) => setForm({ ...form, category: e.target.value })}
-              className="mt-2 w-full rounded-md border border-border bg-warm-white px-4 py-2.5 text-sm text-dark outline-none focus:border-teal focus:ring-1 focus:ring-teal"
+              name="category"
               required
+              className="mt-2 w-full rounded-md border border-border bg-warm-white px-4 py-2.5 text-sm text-dark outline-none focus:border-teal"
             >
               <option value="">Select a category</option>
               {categories.map((c) => (
@@ -93,70 +191,31 @@ export default function PatientCasePage() {
             <label htmlFor="condition" className="block text-sm font-medium text-dark">Describe your condition</label>
             <textarea
               id="condition"
-              value={form.condition}
-              onChange={(e) => setForm({ ...form, condition: e.target.value })}
+              name="condition"
               placeholder="Symptoms, diagnosis, duration, current medications..."
               rows={5}
               required
-              className="mt-2 w-full rounded-md border border-border bg-warm-white px-4 py-3 text-sm text-dark outline-none focus:border-teal focus:ring-1 focus:ring-teal"
+              className="mt-2 w-full rounded-md border border-border bg-warm-white px-4 py-3 text-sm text-dark outline-none focus:border-teal"
             />
           </div>
 
           <div>
-            <label htmlFor="previous" className="block text-sm font-medium text-dark">Previous treatment (optional)</label>
+            <label htmlFor="previousTreatment" className="block text-sm font-medium text-dark">Previous treatment (optional)</label>
             <textarea
-              id="previous"
-              value={form.previousTreatment}
-              onChange={(e) => setForm({ ...form, previousTreatment: e.target.value })}
+              id="previousTreatment"
+              name="previousTreatment"
               placeholder="Surgeries, therapies, medications already tried..."
               rows={3}
-              className="mt-2 w-full rounded-md border border-border bg-warm-white px-4 py-3 text-sm text-dark outline-none focus:border-teal focus:ring-1 focus:ring-teal"
+              className="mt-2 w-full rounded-md border border-border bg-warm-white px-4 py-3 text-sm text-dark outline-none focus:border-teal"
             />
-          </div>
-
-          <div>
-            <label htmlFor="reports" className="block text-sm font-medium text-dark">Upload reports (optional)</label>
-            <input
-              id="reports"
-              type="file"
-              multiple
-              onChange={(e) => setForm({ ...form, reports: e.target.files })}
-              className="mt-2 block w-full rounded-md border border-border bg-warm-white px-4 py-3 text-sm text-dark file:mr-4 file:rounded-md file:border-0 file:bg-navy file:px-4 file:py-2 file:text-sm file:font-medium file:text-white hover:file:bg-teal"
-            />
-            <p className="mt-2 text-xs text-muted">Supports PDF, JPG, PNG up to 10 MB each.</p>
-          </div>
-
-          <div className="grid gap-6 sm:grid-cols-2">
-            <div>
-              <label htmlFor="country" className="block text-sm font-medium text-dark">Your country</label>
-              <input
-                id="country"
-                type="text"
-                value={form.country}
-                onChange={(e) => setForm({ ...form, country: e.target.value })}
-                placeholder="USA"
-                required
-                className="mt-2 w-full rounded-md border border-border bg-warm-white px-4 py-2.5 text-sm text-dark outline-none focus:border-teal focus:ring-1 focus:ring-teal"
-              />
-            </div>
-            <div>
-              <label htmlFor="city" className="block text-sm font-medium text-dark">Preferred city in India (optional)</label>
-              <input
-                id="city"
-                type="text"
-                value={form.city}
-                onChange={(e) => setForm({ ...form, city: e.target.value })}
-                placeholder="Chennai"
-                className="mt-2 w-full rounded-md border border-border bg-warm-white px-4 py-2.5 text-sm text-dark outline-none focus:border-teal focus:ring-1 focus:ring-teal"
-              />
-            </div>
           </div>
 
           <button
             type="submit"
-            className="w-full rounded-md bg-navy px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-teal sm:w-auto"
+            disabled={loading}
+            className="w-full rounded-md bg-navy px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-teal disabled:opacity-60 sm:w-auto"
           >
-            Submit case for review
+            {loading ? "Submitting..." : "Submit case for review"}
           </button>
         </form>
       </div>
