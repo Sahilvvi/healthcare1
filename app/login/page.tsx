@@ -158,12 +158,12 @@ export default function LoginPage() {
 
             <p className="mt-8 text-center text-sm text-muted">
               Don&apos;t have an account?{" "}
-              <Link href="/patient/case" className="font-medium text-teal hover:text-navy">
-                Start your case
+              <Link href="/signup" className="font-medium text-teal hover:text-navy">
+                Create an account
               </Link>{" "}
               or{" "}
-              <Link href="/treatment-plan" className="font-medium text-teal hover:text-navy">
-                get a treatment plan
+              <Link href="/patient/case" className="font-medium text-teal hover:text-navy">
+                share your case
               </Link>
               .
             </p>

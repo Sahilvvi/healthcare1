@@ -48,6 +48,12 @@ export function Header() {
             Log in
           </Link>
           <Link
+            href="/signup"
+            className="text-sm font-medium text-dark hover:text-navy"
+          >
+            Sign up
+          </Link>
+          <Link
             href="/treatment-plan"
             className="rounded-md bg-navy px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-teal"
           >
@@ -92,6 +98,13 @@ export function Header() {
                 className="text-center text-sm font-medium text-dark hover:text-navy"
               >
                 Log in
+              </Link>
+              <Link
+                href="/signup"
+                onClick={() => setOpen(false)}
+                className="text-center text-sm font-medium text-dark hover:text-navy"
+              >
+                Sign up
               </Link>
               <Link
                 href="/treatment-plan"
