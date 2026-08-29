@@ -51,8 +51,8 @@ export function Hero() {
         <div className="relative animate-fade-up [animation-delay:120ms]">
           <div className="aspect-[4/3] overflow-hidden rounded-lg bg-sage">
             <Image
-              src="https://images.unsplash.com/photo-1581056771107-24ca5f033842?auto=format&fit=crop&q=80&w=1600"
-              alt="Doctor consulting with patient"
+              src="https://images.unsplash.com/photo-1758691462126-2ee47c8bf9e7?auto=format&fit=crop&q=80&w=1600"
+              alt="Senior doctor consulting with a mother and child in a modern hospital"
               width={1600}
               height={1200}
               className="h-full w-full object-cover"

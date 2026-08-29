@@ -33,7 +33,7 @@ const steps = [
 
 export function Journey() {
   return (
-    <section id="journey" className="bg-sage/40 py-20 lg:py-28">
+    <section id="journey" className="animate-fade-up bg-sage/40 py-20 lg:py-28">
       <div className="mx-auto max-w-5xl px-6 lg:px-8">
         <div className="mb-14 max-w-2xl">
           <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-teal">
