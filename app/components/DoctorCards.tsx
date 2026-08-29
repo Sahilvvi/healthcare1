@@ -58,7 +58,7 @@ export function DoctorCards() {
                     View Profile
                   </Link>
                   <Link
-                    href={`/doctors/${doctor.slug}/book`}
+                    href={`/book/${doctor.slug}`}
                     className="flex-1 rounded-md bg-navy px-4 py-2.5 text-center text-sm font-medium text-white transition-colors hover:bg-teal"
                   >
                     Book Consultation
