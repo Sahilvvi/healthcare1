@@ -1,8 +1,20 @@
+"use client";
+
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { doctors } from "../lib/doctors";
 
+const filters = ["All", "Cardiology", "Orthopedics", "Oncology", "Neurology"];
+
 export default function DoctorsPage() {
+  const [activeFilter, setActiveFilter] = useState("All");
+
+  const filteredDoctors =
+    activeFilter === "All"
+      ? doctors
+      : doctors.filter((doctor) => doctor.specialty === activeFilter);
+
   return (
     <section className="bg-warm-white py-16 lg:py-24">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
@@ -20,24 +32,23 @@ export default function DoctorsPage() {
         </div>
 
         <div className="mb-10 flex flex-wrap gap-3 text-sm">
-          {["All", "Cardiology", "Orthopedics", "Oncology", "Neurology"].map(
-            (filter) => (
-              <button
-                key={filter}
-                className={`rounded-full border px-4 py-2 transition-colors ${
-                  filter === "All"
-                    ? "border-navy bg-navy text-white"
-                    : "border-border bg-white text-dark hover:border-teal hover:text-teal"
-                }`}
-              >
-                {filter}
-              </button>
-            )
-          )}
+          {filters.map((filter) => (
+            <button
+              key={filter}
+              onClick={() => setActiveFilter(filter)}
+              className={`rounded-full border px-4 py-2 transition-colors ${
+                filter === activeFilter
+                  ? "border-navy bg-navy text-white"
+                  : "border-border bg-white text-dark hover:border-teal hover:text-teal"
+              }`}
+            >
+              {filter}
+            </button>
+          ))}
         </div>
 
         <div className="grid gap-6 lg:grid-cols-2">
-          {doctors.map((doctor) => (
+          {filteredDoctors.map((doctor) => (
             <div
               key={doctor.slug}
               className="group flex flex-col overflow-hidden rounded-lg border border-border bg-white shadow-sm transition-all hover:shadow-md sm:flex-row"
