@@ -1,8 +1,27 @@
+"use client";
+
+import { useMemo, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { hospitals } from "../lib/hospitals";
 
+const allSpecialties = Array.from(
+  new Set(hospitals.flatMap((h) => h.specialties))
+).sort();
+const allCities = Array.from(new Set(hospitals.map((h) => h.city))).sort();
+
 export default function HospitalsPage() {
+  const [specialty, setSpecialty] = useState("All");
+  const [city, setCity] = useState("All");
+
+  const filtered = useMemo(() => {
+    return hospitals.filter((h) => {
+      const matchesSpecialty = specialty === "All" || h.specialties.includes(specialty);
+      const matchesCity = city === "All" || h.city === city;
+      return matchesSpecialty && matchesCity;
+    });
+  }, [specialty, city]);
+
   return (
     <section className="bg-warm-white py-16 lg:py-24">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
@@ -19,8 +38,33 @@ export default function HospitalsPage() {
           </p>
         </div>
 
+        <div className="mb-10 flex flex-col gap-4 sm:flex-row">
+          <select
+            value={specialty}
+            onChange={(e) => setSpecialty(e.target.value)}
+            className="rounded-md border border-border bg-white px-4 py-2.5 text-sm text-dark outline-none focus:border-teal"
+          >
+            <option value="All">All specialties</option>
+            {allSpecialties.map((s) => (
+              <option key={s} value={s}>{s}</option>
+            ))}
+          </select>
+          <select
+            value={city}
+            onChange={(e) => setCity(e.target.value)}
+            className="rounded-md border border-border bg-white px-4 py-2.5 text-sm text-dark outline-none focus:border-teal"
+          >
+            <option value="All">All cities</option>
+            {allCities.map((c) => (
+              <option key={c} value={c}>{c}</option>
+            ))}
+          </select>
+        </div>
+
+        <p className="mb-6 text-sm text-muted">{filtered.length} hospital{filtered.length !== 1 && "s"}</p>
+
         <div className="grid gap-6 lg:grid-cols-2">
-          {hospitals.map((hospital) => (
+          {filtered.map((hospital) => (
             <Link
               key={hospital.slug}
               href={`/hospitals/${hospital.slug}`}
