@@ -98,14 +98,17 @@ export default function PatientDashboard() {
             </Link>
           </div>
 
-          <div className="rounded-lg border border-border bg-white p-6 shadow-sm">
+          <Link
+            href="/patient/travel"
+            className="rounded-lg border border-border bg-white p-6 shadow-sm transition-shadow hover:shadow-md"
+          >
             <h2 className="font-heading text-lg font-semibold text-navy">
               Travel Details
             </h2>
             <p className="mt-2 text-sm text-muted">Arrival: 12 Sep 2026</p>
             <p className="mt-1 text-sm text-muted">Airport pickup confirmed</p>
             <p className="mt-1 text-sm text-muted">Hotel: Apollo Courtyard</p>
-          </div>
+          </Link>
 
           <div className="rounded-lg border border-border bg-white p-6 shadow-sm">
             <h2 className="font-heading text-lg font-semibold text-navy">
