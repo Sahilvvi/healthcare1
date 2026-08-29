@@ -21,22 +21,22 @@ export function Footer() {
             </h4>
             <ul className="mt-4 space-y-3 text-sm text-white/70">
               <li>
-                <Link href="#" className="hover:text-white">
+                <Link href="/treatment-plan" className="hover:text-white">
                   Get Treatment Plan
                 </Link>
               </li>
               <li>
-                <Link href="#" className="hover:text-white">
+                <Link href="/doctors" className="hover:text-white">
                   Find a Doctor
                 </Link>
               </li>
               <li>
-                <Link href="#" className="hover:text-white">
+                <Link href="/packages" className="hover:text-white">
                   Treatment Packages
                 </Link>
               </li>
               <li>
-                <Link href="#" className="hover:text-white">
+                <Link href="/patient/dashboard" className="hover:text-white">
                   Patient Portal
                 </Link>
               </li>
@@ -48,22 +48,22 @@ export function Footer() {
             </h4>
             <ul className="mt-4 space-y-3 text-sm text-white/70">
               <li>
-                <Link href="#" className="hover:text-white">
+                <Link href="/about" className="hover:text-white">
                   About Us
                 </Link>
               </li>
               <li>
-                <Link href="#" className="hover:text-white">
+                <Link href="/how-it-works" className="hover:text-white">
                   How it Works
                 </Link>
               </li>
               <li>
-                <Link href="#" className="hover:text-white">
+                <Link href="/trust-safety" className="hover:text-white">
                   Trust & Safety
                 </Link>
               </li>
               <li>
-                <Link href="#" className="hover:text-white">
+                <Link href="/contact" className="hover:text-white">
                   Contact
                 </Link>
               </li>
@@ -73,10 +73,10 @@ export function Footer() {
         <div className="mt-12 flex flex-col items-center justify-between gap-4 border-t border-white/10 pt-8 text-sm text-white/50 md:flex-row">
           <p>© 2026 Dadashri Vishwa Healthcare. All rights reserved.</p>
           <div className="flex gap-6">
-            <Link href="#" className="hover:text-white">
+            <Link href="/privacy" className="hover:text-white">
               Privacy
             </Link>
-            <Link href="#" className="hover:text-white">
+            <Link href="/terms" className="hover:text-white">
               Terms
             </Link>
           </div>

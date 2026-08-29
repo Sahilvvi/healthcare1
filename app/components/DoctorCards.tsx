@@ -1,38 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-
-const doctors = [
-  {
-    name: "Dr. Ananya Sharma",
-    specialty: "Cardiology",
-    experience: "18+ years",
-    rating: "4.9",
-    procedures: "1,200+",
-    languages: ["English", "Hindi", "Arabic"],
-    image:
-      "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&q=80&w=800",
-  },
-  {
-    name: "Dr. Rajiv Menon",
-    specialty: "Orthopedics",
-    experience: "22+ years",
-    rating: "4.8",
-    procedures: "3,400+",
-    languages: ["English", "Hindi", "Tamil"],
-    image:
-      "https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&q=80&w=800",
-  },
-  {
-    name: "Dr. Priya Kulkarni",
-    specialty: "Oncology",
-    experience: "15+ years",
-    rating: "4.9",
-    procedures: "900+",
-    languages: ["English", "Hindi", "Marathi"],
-    image:
-      "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&q=80&w=800",
-  },
-];
+import { doctors } from "../lib/doctors";
 
 export function DoctorCards() {
   return (
@@ -48,9 +16,9 @@ export function DoctorCards() {
           </p>
         </div>
         <div className="grid gap-6 lg:grid-cols-3">
-          {doctors.map((doctor) => (
+          {doctors.slice(0, 3).map((doctor) => (
             <div
-              key={doctor.name}
+              key={doctor.slug}
               className="group overflow-hidden rounded-lg border border-border bg-white shadow-sm transition-all duration-300 hover:shadow-md"
             >
               <div className="aspect-[4/3] overflow-hidden bg-sage">
@@ -84,13 +52,13 @@ export function DoctorCards() {
                 </p>
                 <div className="mt-6 flex gap-3">
                   <Link
-                    href="#"
+                    href={`/doctors/${doctor.slug}`}
                     className="flex-1 rounded-md border border-border px-4 py-2.5 text-center text-sm font-medium text-dark transition-colors hover:border-navy hover:text-navy"
                   >
                     View Profile
                   </Link>
                   <Link
-                    href="#"
+                    href={`/book/${doctor.slug}`}
                     className="flex-1 rounded-md bg-navy px-4 py-2.5 text-center text-sm font-medium text-white transition-colors hover:bg-teal"
                   >
                     Book Consultation
