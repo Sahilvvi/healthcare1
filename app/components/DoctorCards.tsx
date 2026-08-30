@@ -1,8 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
-import { doctors } from "../lib/doctors";
+import { doctors as fallbackDoctors } from "../lib/doctors";
+import type { Doctor } from "../lib/types";
 
-export function DoctorCards() {
+export function DoctorCards({ doctors }: { doctors?: Doctor[] }) {
+  const displayDoctors = doctors?.length ? doctors.slice(0, 3) : fallbackDoctors.slice(0, 3);
   return (
     <section id="doctors" className="bg-warm-white py-20 lg:py-28">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
@@ -16,7 +18,7 @@ export function DoctorCards() {
           </p>
         </div>
         <div className="grid gap-6 lg:grid-cols-3">
-          {doctors.slice(0, 3).map((doctor) => (
+          {displayDoctors.map((doctor) => (
             <div
               key={doctor.slug}
               className="group overflow-hidden rounded-lg border border-border bg-white shadow-sm transition-all duration-300 hover:shadow-md"

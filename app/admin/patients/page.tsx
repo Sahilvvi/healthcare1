@@ -2,6 +2,8 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/app/lib/supabase/server";
 import { supabaseAdmin } from "@/app/lib/supabase/admin";
 import type { Case, Profile } from "@/app/lib/types";
+import { CaseActions } from "./CaseActions";
+import { AssignCoordinator } from "./AssignCoordinator";
 
 const stages = ["New", "Medical Review", "Consultation", "Plan", "Treatment", "Recovery"];
 
@@ -41,6 +43,13 @@ export default async function AdminPatientsPage() {
 
   const casesMap = new Map((cases || []).map((c: Case) => [c.patient_id, c]));
 
+  const { data: coordinatorsData } = await supabaseAdmin
+    .from("dv_profiles")
+    .select("id, name")
+    .eq("role", "admin");
+
+  const coordinators = (coordinatorsData || []) as { id: string; name: string }[];
+
   return (
     <section>
       <div className="mb-6">
@@ -68,11 +77,23 @@ export default async function AdminPatientsPage() {
                   <td className="px-4 py-3 text-muted">{patient.country || "—"}</td>
                   <td className="px-4 py-3 text-muted">{patientCase?.category || "—"}</td>
                   <td className="px-4 py-3">
-                    <span className="rounded-full bg-sage px-2.5 py-1 text-xs text-dark">
-                      {patientCase?.status || "NEW"}
-                    </span>
+                    {patientCase ? (
+                      <CaseActions caseId={patientCase.id} currentStatus={patientCase.status || "NEW"} />
+                    ) : (
+                      <span className="rounded-full bg-sage px-2.5 py-1 text-xs text-dark">NEW</span>
+                    )}
                   </td>
-                  <td className="px-4 py-3 text-muted">{patientCase?.coordinator_id ? "Assigned" : "—"}</td>
+                  <td className="px-4 py-3 text-muted">
+                    {patientCase ? (
+                      <AssignCoordinator
+                        caseId={patientCase.id}
+                        current={patientCase.coordinator_id || ""}
+                        coordinators={coordinators}
+                      />
+                    ) : (
+                      "—"
+                    )}
+                  </td>
                 </tr>
               );
             })}

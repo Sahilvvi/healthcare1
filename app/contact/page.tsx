@@ -2,16 +2,30 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import { submitContact } from "./actions";
 
 export default function ContactPage() {
   const [submitted, setSubmitted] = useState(false);
+  const [status, setStatus] = useState<{ ok?: boolean; error?: string } | null>(null);
   const [form, setForm] = useState({ name: "", email: "", message: "" });
+  const [loading, setLoading] = useState(false);
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (form.name && form.email && form.message) {
-      setSubmitted(true);
+    if (!form.name || !form.email || !form.message) return;
+
+    setStatus(null);
+    setLoading(true);
+    const result = await submitContact(new FormData(e.currentTarget as HTMLFormElement));
+    setLoading(false);
+
+    if (result.error) {
+      setStatus(result);
+      return;
     }
+
+    setStatus(result);
+    setSubmitted(true);
   }
 
   return (
@@ -72,9 +86,16 @@ export default function ContactPage() {
               </div>
             ) : (
               <form className="mt-8 space-y-5" onSubmit={handleSubmit}>
+                {status?.error && (
+                  <p className="rounded-md bg-red-50 px-4 py-3 text-sm text-red-700">
+                    {status.error}
+                  </p>
+                )}
                 <div>
-                  <label className="block text-sm font-medium text-dark">Name</label>
+                  <label htmlFor="name" className="block text-sm font-medium text-dark">Name</label>
                   <input
+                    id="name"
+                    name="name"
                     value={form.name}
                     onChange={(e) => setForm((prev) => ({ ...prev, name: e.target.value }))}
                     required
@@ -83,8 +104,10 @@ export default function ContactPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-dark">Email</label>
+                  <label htmlFor="email" className="block text-sm font-medium text-dark">Email</label>
                   <input
+                    id="email"
+                    name="email"
                     type="email"
                     value={form.email}
                     onChange={(e) => setForm((prev) => ({ ...prev, email: e.target.value }))}
@@ -94,8 +117,10 @@ export default function ContactPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-dark">Message</label>
+                  <label htmlFor="message" className="block text-sm font-medium text-dark">Message</label>
                   <textarea
+                    id="message"
+                    name="message"
                     rows={4}
                     value={form.message}
                     onChange={(e) => setForm((prev) => ({ ...prev, message: e.target.value }))}
@@ -106,9 +131,10 @@ export default function ContactPage() {
                 </div>
                 <button
                   type="submit"
-                  className="w-full rounded-md bg-navy py-3 text-sm font-medium text-white transition-colors hover:bg-teal"
+                  disabled={loading}
+                  className="w-full rounded-md bg-navy py-3 text-sm font-medium text-white transition-colors hover:bg-teal disabled:opacity-60"
                 >
-                  Send message
+                  {loading ? "Sending..." : "Send message"}
                 </button>
               </form>
             )}

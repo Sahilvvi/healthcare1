@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/app/lib/supabase/client";
@@ -25,10 +25,13 @@ const steps = [
 
 export default function PatientCasePage() {
   const [step, setStep] = useState(0);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [checkingAuth, setCheckingAuth] = useState(true);
   const [form, setForm] = useState({
     name: "",
     email: "",
     password: "",
+    confirmPassword: "",
     phone: "",
     country: "",
     city: "",
@@ -37,9 +40,31 @@ export default function PatientCasePage() {
     previousTreatment: "",
   });
   const [submitted, setSubmitted] = useState(false);
+  const [submittedError, setSubmittedError] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    async function checkUser() {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setIsAuthenticated(true);
+        setForm((prev) => ({
+          ...prev,
+          email: user.email || prev.email,
+          name: user.user_metadata?.name || prev.name,
+          country: user.user_metadata?.country || prev.country,
+          city: user.user_metadata?.city || prev.city,
+          phone: user.user_metadata?.phone || prev.phone,
+        }));
+        setStep(1);
+      }
+      setCheckingAuth(false);
+    }
+    checkUser();
+  }, []);
 
   function updateField(field: keyof typeof form, value: string) {
     setForm((prev) => ({ ...prev, [field]: value }));
@@ -47,7 +72,8 @@ export default function PatientCasePage() {
 
   function canProceed() {
     if (step === 0) {
-      return form.name && form.email && form.password && form.country;
+      const passwordOk = isAuthenticated || (form.password.length >= 6 && form.password === form.confirmPassword);
+      return form.name && form.email && passwordOk && form.country;
     }
     if (step === 1) {
       return form.category && form.condition;
@@ -55,9 +81,16 @@ export default function PatientCasePage() {
     return true;
   }
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  async function handleSubmit(e?: React.FormEvent<HTMLFormElement>) {
+    e?.preventDefault();
     setError(null);
+    setSubmittedError(null);
+
+    if (!isAuthenticated && form.password !== form.confirmPassword) {
+      setError("Passwords do not match.");
+      return;
+    }
+
     setLoading(true);
 
     const fd = new FormData();
@@ -71,6 +104,12 @@ export default function PatientCasePage() {
       return;
     }
 
+    if (!result.isNew) {
+      router.push("/patient/dashboard");
+      router.refresh();
+      return;
+    }
+
     const supabase = createClient();
     const { error: signInError } = await supabase.auth.signInWithPassword({
       email: form.email,
@@ -78,7 +117,7 @@ export default function PatientCasePage() {
     });
 
     if (signInError) {
-      setError("Case created. Please sign in to continue.");
+      setSubmittedError("Account and case created, but automatic sign-in failed. Please sign in below.");
       setSubmitted(true);
       setLoading(false);
       return;
@@ -101,14 +140,35 @@ export default function PatientCasePage() {
           <p className="mt-3 text-muted">
             Thank you for sharing your case. A care coordinator will review your details and reach out within 24 hours with a medical opinion and estimated treatment plan.
           </p>
-          <div className="mt-8 flex justify-center gap-4">
-            <Link href="/patient/dashboard" className="rounded-md bg-navy px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-teal">
-              Go to dashboard
-            </Link>
+          {submittedError && (
+            <p className="mt-4 rounded-md bg-amber-50 px-4 py-3 text-sm text-amber-800">
+              {submittedError}
+            </p>
+          )}
+          <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
+            {submittedError ? (
+              <Link href="/login" className="rounded-md bg-navy px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-teal">
+                Sign in
+              </Link>
+            ) : (
+              <Link href="/patient/dashboard" className="rounded-md bg-navy px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-teal">
+                Go to dashboard
+              </Link>
+            )}
             <Link href="/doctors" className="rounded-md border border-border bg-white px-6 py-2.5 text-sm font-medium text-dark transition-colors hover:border-navy">
               Browse doctors
             </Link>
           </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (checkingAuth) {
+    return (
+      <section className="bg-warm-white py-10 lg:py-16">
+        <div className="mx-auto max-w-6xl px-6 lg:px-8">
+          <p className="text-sm text-muted">Loading...</p>
         </div>
       </section>
     );
@@ -187,6 +247,7 @@ export default function PatientCasePage() {
                     <Input label="Full name" value={form.name} onChange={(v) => updateField("name", v)} placeholder="Sarah Johnson" required />
                     <Input label="Email" type="email" value={form.email} onChange={(v) => updateField("email", v)} placeholder="you@example.com" required />
                     <Input label="Password" type="password" value={form.password} onChange={(v) => updateField("password", v)} placeholder="••••••••" required minLength={6} />
+                    <Input label="Confirm password" type="password" value={form.confirmPassword} onChange={(v) => updateField("confirmPassword", v)} placeholder="••••••••" required minLength={6} />
                     <Input label="Phone" type="tel" value={form.phone} onChange={(v) => updateField("phone", v)} placeholder="+1 555 123 4567" />
                     <Input label="Your country" value={form.country} onChange={(v) => updateField("country", v)} placeholder="USA" required />
                     <Input label="Preferred city in India" value={form.city} onChange={(v) => updateField("city", v)} placeholder="Chennai" />
@@ -288,7 +349,8 @@ export default function PatientCasePage() {
                   </button>
                 ) : (
                   <button
-                    type="submit"
+                    type="button"
+                    onClick={() => handleSubmit()}
                     disabled={loading || !canProceed()}
                     className="rounded-md bg-navy px-8 py-3 text-sm font-medium text-white transition-colors hover:bg-teal disabled:opacity-50"
                   >

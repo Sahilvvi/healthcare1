@@ -73,16 +73,18 @@ export default async function ConsultationPage() {
               <p className="mt-6 text-sm text-muted">
                 The consultation room will open 15 minutes before your scheduled time.
               </p>
-              <a
-                href={upcoming.link || "#"}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={`mt-6 inline-block rounded-md bg-navy px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-teal ${
-                  upcoming.status !== "SCHEDULED" ? "pointer-events-none opacity-60" : ""
-                }`}
-              >
-                Join call
-              </a>
+              {upcoming.link && (upcoming.status === "SCHEDULED" || upcoming.status === "CONFIRMED") ? (
+                <a
+                  href={upcoming.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-6 inline-block rounded-md bg-navy px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-teal"
+                >
+                  Join call
+                </a>
+              ) : (
+                <p className="mt-6 text-sm text-muted">{upcoming.type === "TELECONSULTATION" ? "The call link will appear here shortly." : "In-person appointment"}</p>
+              )}
             </>
           ) : (
             <>

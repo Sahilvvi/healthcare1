@@ -1,11 +1,16 @@
 import Link from "next/link";
+import type { Package } from "../lib/types";
 
-const packages = [
+const fallbackPackages: Package[] = [
   {
+    id: "1",
+    slug: "knee-replacement",
     name: "Knee Replacement",
     country: "India",
     price: "$4,800",
     stay: "10–14 days",
+    specialty: "orthopedics",
+    description: null,
     includes: [
       "Specialist consultation",
       "Surgery",
@@ -13,12 +18,17 @@ const packages = [
       "Follow-up",
       "Care coordination",
     ],
+    hospitals: [],
   },
   {
+    id: "2",
+    slug: "cardiac-bypass",
     name: "Cardiac Bypass",
     country: "India",
     price: "$7,200",
     stay: "12–16 days",
+    specialty: "cardiology",
+    description: null,
     includes: [
       "Cardiologist consultation",
       "Procedure",
@@ -26,12 +36,17 @@ const packages = [
       "Rehabilitation plan",
       "Travel support",
     ],
+    hospitals: [],
   },
   {
+    id: "3",
+    slug: "liver-transplant",
     name: "Liver Transplant",
     country: "India",
     price: "On request",
     stay: "30–45 days",
+    specialty: "transplants",
+    description: null,
     includes: [
       "Transplant evaluation",
       "Surgery & post-op care",
@@ -39,10 +54,12 @@ const packages = [
       "Accommodation support",
       "Long-term follow-up",
     ],
+    hospitals: [],
   },
 ];
 
-export function TreatmentPackages() {
+export function TreatmentPackages({ packages }: { packages?: Package[] }) {
+  const displayPackages = packages?.length ? packages : fallbackPackages;
   return (
     <section id="packages" className="bg-warm-white py-20 lg:py-28">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
@@ -64,7 +81,7 @@ export function TreatmentPackages() {
           </Link>
         </div>
         <div className="grid gap-6 lg:grid-cols-3">
-          {packages.map((pkg) => (
+          {displayPackages.map((pkg) => (
             <div
               key={pkg.name}
               className="group flex flex-col rounded-lg border border-border bg-white p-6 shadow-sm transition-all duration-300 hover:border-teal/30 hover:shadow-md"
@@ -93,7 +110,7 @@ export function TreatmentPackages() {
                 ))}
               </ul>
               <Link
-                href="/treatment-plan"
+                href={`/packages/${pkg.slug}`}
                 className="mt-8 block rounded-md border border-navy bg-navy px-5 py-3 text-center text-sm font-medium text-white transition-colors hover:bg-teal"
               >
                 View Treatment Plan

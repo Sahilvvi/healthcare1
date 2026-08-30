@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/app/lib/supabase/server";
 import { supabaseAdmin } from "@/app/lib/supabase/admin";
 import type { Hospital } from "@/app/lib/types";
+import { AddHospitalForm } from "./AddHospitalForm";
 
 export default async function AdminHospitalsPage() {
   const supabase = await createClient();
@@ -40,6 +41,8 @@ export default async function AdminHospitalsPage() {
         <h1 className="font-heading text-2xl font-semibold text-navy">Hospitals</h1>
         <p className="text-sm text-muted">Accredited centres and international patient services</p>
       </div>
+
+      <AddHospitalForm />
 
       <div className="grid gap-4">
         {hospitals.map((hospital) => (

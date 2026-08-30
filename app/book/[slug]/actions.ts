@@ -30,6 +30,7 @@ export async function bookAppointment({
   slot: string;
 }) {
   const scheduledAt = parseSlotToDate(slot).toISOString();
+  const room = `dvh-${caseId.slice(0, 8)}-${Date.now()}`;
 
   const { data: appointment, error } = await supabaseAdmin
     .from("dv_appointments")
@@ -39,7 +40,7 @@ export async function bookAppointment({
       type: "Video Consultation",
       scheduled_at: scheduledAt,
       status: "SCHEDULED",
-      link: "#",
+      link: `https://meet.jit.si/${room}`,
     })
     .select()
     .single();
