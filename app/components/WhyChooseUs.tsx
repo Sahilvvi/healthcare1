@@ -1,3 +1,5 @@
+import { Reveal } from "./Reveal";
+
 function ShieldIcon() {
   return (
     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -59,69 +61,46 @@ function GlobeIcon() {
 }
 
 const features = [
-  {
-    icon: ShieldIcon,
-    title: "Verified doctors & hospitals",
-    description: "Every specialist and facility is background-checked, accredited and reviewed by our medical team.",
-  },
-  {
-    icon: ReceiptIcon,
-    title: "Transparent package pricing",
-    description: "No hidden fees. Each estimate outlines what's included so you can plan with confidence.",
-  },
-  {
-    icon: CoordinatorIcon,
-    title: "Dedicated care coordinator",
-    description: "One point of contact for appointments, reports, travel and follow-ups — from start to recovery.",
-  },
-  {
-    icon: TravelIcon,
-    title: "Visa & travel support",
-    description: "Medical visa letters, airport transfers, accommodation and local logistics handled for you.",
-  },
-  {
-    icon: LockIcon,
-    title: "Encrypted records & privacy",
-    description: "Your reports and case details are stored securely and only shared with your assigned team.",
-  },
-  {
-    icon: GlobeIcon,
-    title: "Multilingual team",
-    description: "Coordinators and interpreters in English, Arabic, French, Russian and major Indian languages.",
-  },
+  { icon: ShieldIcon, title: "Verified doctors & hospitals", description: "Every specialist and facility is background-checked, accredited and reviewed by our medical team." },
+  { icon: ReceiptIcon, title: "Transparent package pricing", description: "No hidden fees. Each estimate outlines what's included so you can plan with confidence." },
+  { icon: CoordinatorIcon, title: "Dedicated care coordinator", description: "One point of contact for appointments, reports, travel and follow-ups — from start to recovery." },
+  { icon: TravelIcon, title: "Visa & travel support", description: "Medical visa letters, airport transfers, accommodation and local logistics handled for you." },
+  { icon: LockIcon, title: "Encrypted records & privacy", description: "Your reports and case details are stored securely and only shared with your assigned team." },
+  { icon: GlobeIcon, title: "Multilingual team", description: "Coordinators and interpreters in English, Arabic, French, Russian and major Indian languages." },
 ];
 
 export function WhyChooseUs() {
   return (
     <section className="bg-warm-white py-20 lg:py-28">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
-        <div className="mb-14 max-w-2xl">
-          <p className="text-sm font-semibold uppercase tracking-widest text-teal">
-            Why patients choose us
-          </p>
-          <h2 className="mt-3 font-heading text-3xl font-semibold text-navy md:text-4xl">
-            A simpler way to access trusted healthcare in India
-          </h2>
-          <p className="mt-4 text-muted">
-            We combine medical expertise, transparent pricing and full travel coordination into one continuous care journey.
-          </p>
-        </div>
+        <Reveal>
+          <div className="mb-14 max-w-2xl">
+            <p className="text-sm font-semibold uppercase tracking-widest text-teal">
+              Why patients choose us
+            </p>
+            <h2 className="mt-3 font-heading text-3xl font-semibold text-navy md:text-4xl">
+              A simpler way to access trusted healthcare in India
+            </h2>
+            <p className="mt-4 text-muted">
+              We combine medical expertise, transparent pricing and full travel coordination into one continuous care journey.
+            </p>
+          </div>
+        </Reveal>
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {features.map((feature) => (
-            <div
-              key={feature.title}
-              className="rounded-lg border border-border bg-white p-6 shadow-sm transition-shadow duration-300 hover:shadow-md"
-            >
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-sage text-teal">
-                <feature.icon />
+          {features.map((feature, i) => (
+            <Reveal key={feature.title} delay={i * 80}>
+              <div className="rounded-2xl border border-border bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-sage text-teal">
+                  <feature.icon />
+                </div>
+                <h3 className="mt-5 font-heading text-lg font-semibold text-navy">
+                  {feature.title}
+                </h3>
+                <p className="mt-2 text-sm leading-relaxed text-muted">
+                  {feature.description}
+                </p>
               </div>
-              <h3 className="mt-5 font-heading text-lg font-semibold text-navy">
-                {feature.title}
-              </h3>
-              <p className="mt-2 text-sm leading-relaxed text-muted">
-                {feature.description}
-              </p>
-            </div>
+            </Reveal>
           ))}
         </div>
       </div>

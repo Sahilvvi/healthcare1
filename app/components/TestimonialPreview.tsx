@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { Reveal } from "./Reveal";
 
 const testimonials = [
   {
@@ -31,38 +32,37 @@ export function TestimonialPreview() {
   return (
     <section className="bg-sage/30 py-20 lg:py-28">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
-        <div className="mb-14 max-w-2xl">
-          <p className="text-sm font-semibold uppercase tracking-widest text-teal">
-            Patient stories
-          </p>
-          <h2 className="mt-3 font-heading text-3xl font-semibold text-navy md:text-4xl">
-            Trusted by patients across the world
-          </h2>
-        </div>
+        <Reveal>
+          <div className="mb-14 max-w-2xl">
+            <p className="text-sm font-semibold uppercase tracking-widest text-teal">Patient stories</p>
+            <h2 className="mt-3 font-heading text-3xl font-semibold text-navy md:text-4xl">
+              Trusted by patients across the world
+            </h2>
+          </div>
+        </Reveal>
         <div className="grid gap-6 lg:grid-cols-3">
-          {testimonials.map((t) => (
-            <div
-              key={t.name}
-              className="rounded-lg border border-border bg-white p-8 shadow-sm transition-shadow duration-300 hover:shadow-md"
-            >
-              <p className="text-lg leading-relaxed text-dark">&ldquo;{t.quote}&rdquo;</p>
-              <div className="mt-8 flex items-center gap-4">
-                <div className="h-12 w-12 overflow-hidden rounded-full bg-sage">
-                  <Image
-                    src={t.image}
-                    alt={t.name}
-                    width={48}
-                    height={48}
-                    className="h-full w-full object-cover"
-                  />
-                </div>
-                <div>
-                  <p className="font-heading text-sm font-semibold text-navy">{t.name}</p>
-                  <p className="text-xs text-muted">{t.location}</p>
-                  <p className="text-xs text-teal">{t.treatment}</p>
+          {testimonials.map((t, i) => (
+            <Reveal key={t.name} delay={i * 100}>
+              <div className="h-full rounded-2xl border border-border bg-white p-8 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
+                <p className="text-lg leading-relaxed text-dark">&ldquo;{t.quote}&rdquo;</p>
+                <div className="mt-8 flex items-center gap-4">
+                  <div className="h-12 w-12 overflow-hidden rounded-full bg-sage ring-2 ring-sage">
+                    <Image
+                      src={t.image}
+                      alt={t.name}
+                      width={48}
+                      height={48}
+                      className="h-full w-full object-cover"
+                    />
+                  </div>
+                  <div>
+                    <p className="font-heading text-sm font-semibold text-navy">{t.name}</p>
+                    <p className="text-xs text-muted">{t.location}</p>
+                    <p className="text-xs text-teal">{t.treatment}</p>
+                  </div>
                 </div>
               </div>
-            </div>
+            </Reveal>
           ))}
         </div>
       </div>

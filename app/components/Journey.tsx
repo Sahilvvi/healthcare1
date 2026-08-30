@@ -40,11 +40,11 @@ export function Journey() {
     <section id="journey" className="bg-sage/40 py-20 lg:py-28">
       <div className="mx-auto max-w-5xl px-6 lg:px-8">
         <Reveal>
-          <div className="mb-14 max-w-2xl">
-            <p className="mb-3 text-sm font-semibold uppercase tracking-widest text-teal">
+          <div className="mb-14 max-w-2xl text-center lg:text-left">
+            <p className="text-sm font-semibold uppercase tracking-widest text-teal">
               Plan → Treat → Recover
             </p>
-            <h2 className="font-heading text-3xl font-semibold text-navy md:text-4xl">
+            <h2 className="mt-3 font-heading text-3xl font-semibold text-navy md:text-4xl">
               Your healthcare journey, taken care of.
             </h2>
           </div>
@@ -54,12 +54,10 @@ export function Journey() {
           {steps.map((step, index) => (
             <Reveal key={step.number} delay={index * 100}>
               <div className="relative flex items-start gap-6 md:gap-8">
-                <div className="relative z-10 flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-navy text-white shadow-md md:h-16 md:w-16">
-                  <span className="font-heading text-sm font-semibold md:text-base">
-                    {step.number}
-                  </span>
+                <div className="relative z-10 flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-navy text-sm font-semibold text-white shadow-md transition-transform duration-300 hover:scale-110 md:h-16 md:w-16 md:text-base">
+                  {step.number}
                 </div>
-                <div className="flex-1 rounded-lg border border-border bg-white p-6 shadow-sm transition-shadow duration-300 hover:shadow-md md:p-8">
+                <div className="flex-1 rounded-2xl border border-border bg-white p-6 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md md:p-8">
                   <span className="font-heading text-sm font-semibold text-teal">
                     Step {step.number}
                   </span>
