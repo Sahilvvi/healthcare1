@@ -4,50 +4,8 @@ import { Check, ArrowRight, Sparkles } from "lucide-react";
 import type { Package } from "../lib/types";
 import { getPackageImage } from "../lib/packageImages";
 
-const fallbackPackages: Package[] = [
-  {
-    id: "1",
-    slug: "knee-replacement",
-    name: "Knee Replacement",
-    country: "India",
-    price: "$4,800",
-    stay: "10–14 days",
-    specialty: "orthopedics",
-    description: null,
-    image: "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&q=80&w=800",
-    includes: ["Specialist consultation", "Surgery", "Hospital stay", "Follow-up", "Care coordination"],
-    hospitals: [],
-  },
-  {
-    id: "2",
-    slug: "cardiac-bypass",
-    name: "Cardiac Bypass",
-    country: "India",
-    price: "$7,200",
-    stay: "12–16 days",
-    specialty: "cardiology",
-    description: null,
-    image: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&q=80&w=800",
-    includes: ["Cardiologist consultation", "Procedure", "Intensive care", "Rehabilitation plan", "Travel support"],
-    hospitals: [],
-  },
-  {
-    id: "3",
-    slug: "liver-transplant",
-    name: "Liver Transplant",
-    country: "India",
-    price: "On request",
-    stay: "30–45 days",
-    specialty: "transplants",
-    description: null,
-    image: "https://images.unsplash.com/photo-1581056771107-24ca5f033842?auto=format&fit=crop&q=80&w=800",
-    includes: ["Transplant evaluation", "Surgery & post-op care", "Donor coordination", "Accommodation support", "Long-term follow-up"],
-    hospitals: [],
-  },
-];
-
 export function TreatmentPackages({ packages }: { packages?: Package[] }) {
-  const displayPackages = packages?.length ? packages : fallbackPackages;
+  const displayPackages = packages || [];
   return (
     <section id="packages" className="bg-sage/20 py-24 lg:py-32">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">

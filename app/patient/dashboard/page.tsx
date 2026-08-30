@@ -190,9 +190,30 @@ export default async function PatientDashboard() {
 
           <div className="grid gap-6 lg:grid-cols-12">
             <div className="space-y-6 lg:col-span-8">
-              <Reveal delay={150}>
-                <CareJourney activeCase={activeCase} timelines={timelines} />
-              </Reveal>
+              {activeCase ? (
+                <Reveal delay={150}>
+                  <CareJourney activeCase={activeCase} timelines={timelines} />
+                </Reveal>
+              ) : (
+                <Reveal delay={150}>
+                  <div className="rounded-2xl border border-dashed border-teal/30 bg-white p-8 text-center shadow-sm">
+                    <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-sage">
+                      <Plus className="h-7 w-7 text-teal" />
+                    </div>
+                    <h2 className="mt-4 font-heading text-lg font-semibold text-navy">Your care journey will appear here</h2>
+                    <p className="mx-auto mt-2 max-w-lg text-sm text-muted">
+                      Share your case to get a personalized medical-travel plan and track every step from review to recovery.
+                    </p>
+                    <Link
+                      href="/patient/case"
+                      className="mt-5 inline-flex items-center gap-2 rounded-xl bg-navy px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-teal"
+                    >
+                      <Plus className="h-4 w-4" />
+                      Start your case
+                    </Link>
+                  </div>
+                </Reveal>
+              )}
 
               <div className="grid gap-6 md:grid-cols-2">
                 <Reveal delay={200}>

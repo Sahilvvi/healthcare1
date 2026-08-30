@@ -1,19 +1,38 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useSearchParams, useRouter } from "next/navigation";
 import type { Doctor } from "@/app/lib/types";
 
 const filters = ["All", "Cardiology", "Orthopedics", "Oncology", "Neurology"];
 
-export default function DoctorsList({ doctors }: { doctors: Doctor[] }) {
-  const [activeFilter, setActiveFilter] = useState("All");
+export default function DoctorsList({ doctors, initialFilter = "All" }: { doctors: Doctor[]; initialFilter?: string }) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const activeFilter = useMemo(() => {
+    const param = searchParams.get("specialty");
+    if (param && filters.includes(param)) return param;
+    if (filters.includes(initialFilter)) return initialFilter;
+    return "All";
+  }, [searchParams, initialFilter]);
 
   const filteredDoctors =
     activeFilter === "All"
       ? doctors
       : doctors.filter((doctor) => doctor.specialty === activeFilter);
+
+  function selectFilter(filter: string) {
+    const params = new URLSearchParams(searchParams.toString());
+    if (filter === "All") {
+      params.delete("specialty");
+    } else {
+      params.set("specialty", filter);
+    }
+    router.push(`/doctors${params.toString() ? `?${params.toString()}` : ""}`, { scroll: false });
+  }
 
   return (
     <section className="bg-warm-white py-16 lg:py-24">
@@ -35,7 +54,7 @@ export default function DoctorsList({ doctors }: { doctors: Doctor[] }) {
           {filters.map((filter) => (
             <button
               key={filter}
-              onClick={() => setActiveFilter(filter)}
+              onClick={() => selectFilter(filter)}
               className={`rounded-full border px-4 py-2 transition-colors ${
                 filter === activeFilter
                   ? "border-navy bg-navy text-white"

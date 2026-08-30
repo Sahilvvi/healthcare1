@@ -24,7 +24,7 @@ interface Summary {
 interface TreatmentPlanFlowProps {
   categories: CategoryOption[];
   doctorsByCategory: Record<string, DoctorOption[]>;
-  summaries: Record<string, Summary>;
+  summaries: Record<string, Summary | null>;
 }
 
 const steps = [
@@ -142,19 +142,29 @@ export function TreatmentPlanFlow({ categories, doctorsByCategory, summaries }: 
             </div>
           )}
 
-          {current.summary && summary && (
+          {current.summary && (
             <div className="space-y-4">
-              <div className="rounded-md border border-border p-5">
-                <p className="text-sm text-muted">Recommended plan</p>
-                <h3 className="mt-1 font-heading text-xl font-semibold text-navy">{summary.title}</h3>
-                <ul className="mt-4 space-y-2 text-sm text-muted">
-                  <li>Doctor: {selectedDoctor?.split(" — ")[0] || summary.doctor}{selectedDoctor ? ` — ${selectedDoctor.split(" — ")[1]}` : ""}</li>
-                  <li>Hospital: {summary.hospital}</li>
-                  <li>Estimated cost: {summary.cost}</li>
-                  <li>Stay: {summary.stay}</li>
-                  <li>Includes consultation, procedure, hospital stay, follow-up & care coordination</li>
-                </ul>
-              </div>
+              {summary ? (
+                <div className="rounded-md border border-border p-5">
+                  <p className="text-sm text-muted">Recommended plan</p>
+                  <h3 className="mt-1 font-heading text-xl font-semibold text-navy">{summary.title}</h3>
+                  <ul className="mt-4 space-y-2 text-sm text-muted">
+                    <li>Doctor: {selectedDoctor?.split(" — ")[0] || summary.doctor}{selectedDoctor ? ` — ${selectedDoctor.split(" — ")[1]}` : ""}</li>
+                    <li>Hospital: {summary.hospital}</li>
+                    <li>Estimated cost: {summary.cost}</li>
+                    <li>Stay: {summary.stay}</li>
+                    <li>Includes consultation, procedure, hospital stay, follow-up & care coordination</li>
+                  </ul>
+                </div>
+              ) : (
+                <div className="rounded-md border border-dashed border-border bg-warm-white p-6 text-center">
+                  <p className="text-sm font-medium text-dark">No pre-built package for this category yet.</p>
+                  <p className="mt-1 text-sm text-muted">Share your case and our care team will build a custom plan for you.</p>
+                  <Link href="/patient/case" className="mt-4 inline-block rounded-md bg-navy px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-teal">
+                    Request a custom plan
+                  </Link>
+                </div>
+              )}
             </div>
           )}
 
