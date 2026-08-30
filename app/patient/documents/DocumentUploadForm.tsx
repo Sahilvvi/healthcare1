@@ -4,9 +4,16 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { uploadDocument } from "./actions";
 
-export function DocumentUploadForm({ caseId }: { caseId?: string }) {
+export function DocumentUploadForm({
+  caseId,
+  caseIds,
+}: {
+  caseId?: string;
+  caseIds?: string[];
+}) {
   const [file, setFile] = useState<File | null>(null);
   const [label, setLabel] = useState("");
+  const [selectedCase, setSelectedCase] = useState(caseId || (caseIds && caseIds[0]) || "");
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState<{ ok?: boolean; error?: string } | null>(null);
   const router = useRouter();
@@ -20,7 +27,7 @@ export function DocumentUploadForm({ caseId }: { caseId?: string }) {
     const data = new FormData();
     data.set("file", file);
     data.set("label", label || file.name);
-    if (caseId) data.set("caseId", caseId);
+    if (selectedCase) data.set("caseId", selectedCase);
 
     const result = await uploadDocument(data);
     setLoading(false);
@@ -33,10 +40,26 @@ export function DocumentUploadForm({ caseId }: { caseId?: string }) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 rounded-lg border border-border bg-white p-6 shadow-sm">
-      <h2 className="font-heading text-lg font-semibold text-navy">Upload a document</h2>
+    <form onSubmit={handleSubmit} className="mt-4 space-y-4">
       {status?.error && <p className="text-sm text-red-600">{status.error}</p>}
       {status?.ok && <p className="text-sm text-teal">Document uploaded successfully.</p>}
+
+      {caseIds && caseIds.length > 1 && (
+        <div>
+          <label htmlFor="doc-case" className="block text-sm font-medium text-dark">Related case</label>
+          <select
+            id="doc-case"
+            value={selectedCase}
+            onChange={(e) => setSelectedCase(e.target.value)}
+            className="mt-2 w-full rounded-md border border-border bg-warm-white px-4 py-2 text-sm text-dark outline-none focus:border-teal"
+          >
+            {caseIds.map((id) => (
+              <option key={id} value={id}>Case {id.slice(0, 8)}</option>
+            ))}
+          </select>
+        </div>
+      )}
+
       <div>
         <label htmlFor="doc-label" className="block text-sm font-medium text-dark">Label</label>
         <input

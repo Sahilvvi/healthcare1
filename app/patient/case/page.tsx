@@ -129,8 +129,8 @@ export default function PatientCasePage() {
 
   if (submitted) {
     return (
-      <section className="bg-warm-white py-16 lg:py-24">
-        <div className="mx-auto max-w-2xl px-6 text-center lg:px-8">
+      <div className="space-y-6">
+        <div className="mx-auto max-w-2xl px-6 py-8 text-center lg:px-8">
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-sage">
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#0F766E" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M20 6 9 17l-5-5" />
@@ -160,36 +160,33 @@ export default function PatientCasePage() {
             </Link>
           </div>
         </div>
-      </section>
+      </div>
     );
   }
 
   if (checkingAuth) {
     return (
-      <section className="bg-warm-white py-10 lg:py-16">
-        <div className="mx-auto max-w-6xl px-6 lg:px-8">
-          <p className="text-sm text-muted">Loading...</p>
-        </div>
-      </section>
+      <div className="space-y-6">
+        <p className="text-sm text-muted">Loading...</p>
+      </div>
     );
   }
 
   return (
-    <section className="bg-warm-white py-10 lg:py-16">
-      <div className="mx-auto max-w-6xl px-6 lg:px-8">
-        <div className="mb-8">
-          <Link href="/patient/dashboard" className="text-sm text-muted hover:text-teal">
-            ← Back to dashboard
-          </Link>
-          <h1 className="mt-6 font-heading text-3xl font-semibold text-navy md:text-4xl">
-            Share your case
-          </h1>
-          <p className="mt-2 max-w-2xl text-muted">
-            Tell us about your condition. Your information is encrypted and only shared with your assigned medical team.
-          </p>
-        </div>
+    <div className="space-y-6">
+      <div>
+        <Link href="/patient/dashboard" className="text-sm text-muted hover:text-teal">
+          ← Back to dashboard
+        </Link>
+        <h1 className="mt-4 font-heading text-3xl font-semibold text-navy md:text-4xl">
+          Share your case
+        </h1>
+        <p className="mt-2 max-w-2xl text-muted">
+          Tell us about your condition. Your information is encrypted and only shared with your assigned medical team.
+        </p>
+      </div>
 
-        <div className="grid gap-10 lg:grid-cols-3">
+      <div className="grid gap-10 lg:grid-cols-3">
           <aside className="order-first lg:order-none">
             <div className="rounded-lg border border-border bg-white p-6 shadow-sm lg:sticky lg:top-24">
               <p className="font-heading text-lg font-semibold text-navy">Your care journey starts here</p>
@@ -360,9 +357,8 @@ export default function PatientCasePage() {
               </div>
             </form>
           </div>
-        </div>
       </div>
-    </section>
+    </div>
   );
 }
 

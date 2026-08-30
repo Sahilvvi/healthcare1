@@ -1,77 +1,65 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/app/lib/supabase/server";
 import { supabaseAdmin } from "@/app/lib/supabase/admin";
+import { SectionHeader } from "@/app/components/dashboard/SectionHeader";
+import { Badge } from "@/app/components/dashboard/Badge";
+import { isDoctor } from "@/app/lib/roles";
 import type { Appointment } from "@/app/lib/types";
 
-interface AppointmentWithPatient extends Appointment {
+function formatDateTime(ts: string) {
+  return new Date(ts).toLocaleString("en-IN", { day: "numeric", month: "short", year: "numeric", hour: "numeric", minute: "2-digit" });
+}
+
+interface TeleconsultationAppointment extends Appointment {
   dv_cases?: { dv_profiles?: { name: string } | null } | null;
-  dv_doctors?: { name: string; specialty: string } | null;
 }
 
 export default async function DoctorTeleconsultationsPage() {
   const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
 
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
-
-  if (userError || !user) {
-    redirect("/login");
-  }
-
-  const { data: profile } = await supabase
-    .from("dv_profiles")
-    .select("role")
-    .eq("id", user.id)
-    .single();
-
-  const role = (profile as { role?: string } | null)?.role;
-  if (role !== "doctor" && role !== "admin") {
-    redirect("/patient/dashboard");
-  }
+  const { data: profile } = await supabase.from("dv_profiles").select("role").eq("id", user.id).single();
+  if (!isDoctor(profile?.role)) redirect("/login");
 
   const { data: appointmentsData } = await supabaseAdmin
     .from("dv_appointments")
-    .select("*, dv_cases!inner(dv_profiles(name)), dv_doctors(name, specialty)")
+    .select("*, dv_cases!inner(dv_profiles(name))")
+    .ilike("type", "%tele%")
     .order("scheduled_at", { ascending: true })
     .limit(50);
 
-  const appointments: AppointmentWithPatient[] = (appointmentsData as AppointmentWithPatient[]) || [];
+  const appointments: TeleconsultationAppointment[] = (appointmentsData as TeleconsultationAppointment[]) || [];
 
   return (
-    <section className="bg-warm-white py-10 lg:py-16">
-      <div className="mx-auto max-w-4xl px-6 lg:px-8">
-        <div className="mb-8 flex items-center justify-between">
-          <div>
-            <h1 className="font-heading text-3xl font-semibold text-navy md:text-4xl">Teleconsultations</h1>
-            <p className="mt-2 text-muted">Upcoming and completed video calls.</p>
-          </div>
-          <Link href="/doctor/dashboard" className="text-sm font-medium text-teal hover:text-navy">
-            Back to dashboard
-          </Link>
-        </div>
+    <div className="space-y-6">
+      <SectionHeader title="Teleconsultations" subtitle="Upcoming and completed video calls with patients" />
 
-        <div className="space-y-4">
-          {appointments.map((t) => (
-            <div key={t.id} className="flex items-center justify-between rounded-lg border border-border bg-white p-5 shadow-sm">
-              <div>
-                <p className="font-medium text-dark">{t.dv_cases?.dv_profiles?.name || "Patient"}</p>
-                <p className="text-sm text-muted">
-                  {t.scheduled_at ? new Date(t.scheduled_at).toLocaleString() : "TBC"} · {t.type}
-                </p>
-              </div>
-              <span className={`rounded-full px-3 py-1 text-xs font-medium ${t.status === "COMPLETED" ? "bg-sage text-dark" : "bg-champagne/40 text-navy"}`}>
-                {t.status}
-              </span>
-            </div>
-          ))}
-          {appointments.length === 0 && (
-            <p className="text-sm text-muted">No teleconsultations scheduled.</p>
-          )}
-        </div>
+      <div className="overflow-hidden rounded-xl border border-border bg-white shadow-sm">
+        <table className="w-full text-left text-sm">
+          <thead className="border-b border-border bg-warm-white text-muted">
+            <tr>
+              <th className="px-5 py-3 font-medium">Patient</th>
+              <th className="px-5 py-3 font-medium">Scheduled</th>
+              <th className="px-5 py-3 font-medium">Status</th>
+              <th className="px-5 py-3 font-medium"></th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-border">
+            {appointments.map((t) => (
+              <tr key={t.id}>
+                <td className="px-5 py-4 text-dark">{t.dv_cases?.dv_profiles?.name || "Patient"}</td>
+                <td className="px-5 py-4 text-muted">{t.scheduled_at ? formatDateTime(t.scheduled_at) : "TBC"}</td>
+                <td className="px-5 py-4"><Badge tone={t.status === "COMPLETED" ? "success" : t.status === "SCHEDULED" ? "info" : "warning"}>{t.status}</Badge></td>
+                <td className="px-5 py-4">
+                  {t.link ? <a href={t.link} target="_blank" rel="noreferrer" className="text-sm font-medium text-teal hover:text-navy">Join</a> : <span className="text-sm text-muted">—</span>}
+                </td>
+              </tr>
+            ))}
+            {appointments.length === 0 && <tr><td className="px-5 py-4 text-muted" colSpan={4}>No teleconsultations scheduled.</td></tr>}
+          </tbody>
+        </table>
       </div>
-    </section>
+    </div>
   );
 }
