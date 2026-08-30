@@ -1,6 +1,8 @@
 import { supabasePublic } from "@/app/lib/supabase/public";
 import { Reveal } from "@/app/components/Reveal";
 import { FinalCTA } from "@/app/components/FinalCTA";
+import { StatCard } from "@/app/components/dashboard/StatCard";
+import { Quote, Globe, HeartPulse, Star } from "lucide-react";
 
 export const revalidate = 60;
 
@@ -43,9 +45,9 @@ async function fetchStats() {
   const countries = new Set((countriesData || []).map((c: { country?: string | null }) => c.country).filter(Boolean));
 
   return [
-    { value: casesCount ? `${casesCount}+` : "1,200+", label: "Patient journeys" },
-    { value: countries.size ? `${countries.size}+` : "15+", label: "Countries served" },
-    { value: "4.9", label: "Average patient rating" },
+    { value: casesCount ?? 1200, suffix: "+", label: "Patient journeys", icon: HeartPulse },
+    { value: countries.size || 15, suffix: "+", label: "Countries served", icon: Globe },
+    { value: "4.9", suffix: "/5", label: "Average patient rating", icon: Star },
   ];
 }
 
@@ -54,27 +56,24 @@ export default async function StoriesPage() {
 
   return (
     <>
-      <section className="bg-warm-white py-16 lg:py-24">
+      <section className="bg-warm-white bg-dot-pattern py-16 lg:py-24">
         <div className="mx-auto max-w-6xl px-6 lg:px-8">
-          <div className="mb-14 max-w-3xl">
-            <p className="text-sm font-semibold uppercase tracking-widest text-teal">
-              Patient stories
-            </p>
-            <h1 className="mt-3 font-heading text-3xl font-semibold text-navy md:text-4xl">
-              Real journeys, real care
-            </h1>
-            <p className="mt-4 text-lg text-muted">
-              International patients share how a care coordinator, transparent pricing and trusted specialists made their treatment in India simpler.
-            </p>
-          </div>
-
           <Reveal>
-            <div className="mb-16 grid gap-6 sm:grid-cols-3">
+            <div className="mb-14 max-w-3xl">
+              <p className="text-sm font-semibold uppercase tracking-widest text-teal">Patient stories</p>
+              <h1 className="mt-3 font-heading text-3xl font-semibold text-navy md:text-4xl">
+                Real journeys, real care
+              </h1>
+              <p className="mt-4 text-lg text-muted">
+                International patients share how a care coordinator, transparent pricing and trusted specialists made their treatment in India simpler.
+              </p>
+            </div>
+          </Reveal>
+
+          <Reveal delay={100}>
+            <div className="mb-16 grid gap-4 sm:grid-cols-3">
               {stats.map((stat) => (
-                <div key={stat.label} className="rounded-lg border border-border bg-white p-6 text-center shadow-sm">
-                  <p className="font-heading text-3xl font-semibold text-navy">{stat.value}</p>
-                  <p className="mt-1 text-sm text-muted">{stat.label}</p>
-                </div>
+                <StatCard key={stat.label} label={stat.label} value={`${stat.value}${stat.suffix}`} icon={stat.icon} />
               ))}
             </div>
           </Reveal>
@@ -82,11 +81,11 @@ export default async function StoriesPage() {
           <div className="space-y-8">
             {stories.map((story, i) => (
               <Reveal key={story.name} delay={i * 80}>
-                <div className="rounded-lg border border-border bg-white p-6 shadow-sm lg:flex lg:gap-8 lg:p-10 transition-shadow hover:shadow-md">
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-navy text-sm font-semibold text-white lg:h-14 lg:w-14">
-                    {String(i + 1).padStart(2, "0")}
+                <div className="rounded-2xl border border-border bg-white p-6 shadow-sm transition-all hover:-translate-y-1 hover:shadow-md lg:flex lg:gap-8 lg:p-10">
+                  <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-navy text-sm font-semibold text-white lg:h-16 lg:w-16">
+                    <Quote className="h-6 w-6" />
                   </div>
-                  <div className="mt-4 lg:mt-0">
+                  <div className="mt-6 lg:mt-0">
                     <p className="text-sm font-medium text-teal">
                       {story.condition} · {story.hospital}
                     </p>
@@ -108,25 +107,25 @@ export default async function StoriesPage() {
             ))}
           </div>
 
-          <Reveal delay={100}>
-            <div className="mt-20 rounded-2xl border border-border bg-white p-6 lg:p-8">
+          <Reveal delay={150}>
+            <div className="mt-20 rounded-2xl border border-border bg-navy p-8 text-white lg:p-12">
               <div className="grid gap-8 lg:grid-cols-2 lg:items-center">
                 <div>
-                  <h2 className="font-heading text-2xl font-semibold text-navy">Add your voice</h2>
-                  <p className="mt-3 text-muted">
+                  <h2 className="font-heading text-2xl font-semibold">Add your voice</h2>
+                  <p className="mt-3 text-white/80">
                     Every story helps the next patient feel confident. If you have completed treatment with us, we would love to hear about your experience.
                   </p>
                 </div>
                 <div className="flex flex-col gap-3 sm:flex-row lg:justify-end">
                   <a
                     href="mailto:care@dadashrihealth.com?subject=My patient story"
-                    className="rounded-md bg-navy px-6 py-3 text-center text-sm font-medium text-white transition-colors hover:bg-teal"
+                    className="rounded-xl bg-teal px-6 py-3 text-center text-sm font-medium text-white transition-colors hover:bg-navy"
                   >
                     Share your story
                   </a>
                   <a
                     href="mailto:care@dadashrihealth.com"
-                    className="rounded-md border border-border bg-white px-6 py-3 text-center text-sm font-medium text-dark transition-colors hover:border-navy"
+                    className="rounded-xl border border-white/20 bg-white/5 px-6 py-3 text-center text-sm font-medium text-white transition-colors hover:bg-white/10"
                   >
                     Contact us
                   </a>

@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/app/lib/supabase/server";
 import { supabaseAdmin } from "@/app/lib/supabase/admin";
 import { StatCard } from "@/app/components/dashboard/StatCard";
+import { QuickLink } from "@/app/components/dashboard/QuickLink";
 import { SectionHeader } from "@/app/components/dashboard/SectionHeader";
 import { Badge } from "@/app/components/dashboard/Badge";
 import { ActivityFeed } from "@/app/components/dashboard/ActivityFeed";
@@ -190,14 +191,14 @@ export default async function AdminDashboard() {
                 <h2 className="font-heading text-lg font-semibold text-navy">Quick links</h2>
               </div>
               <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-4">
-                <QuickLink href="/admin/patients" icon={<Users className="h-4 w-4" />} label="Patients" />
-                <QuickLink href="/admin/doctors" icon={<Stethoscope className="h-4 w-4" />} label="Doctors" />
-                <QuickLink href="/admin/hospitals" icon={<Building2 className="h-4 w-4" />} label="Hospitals" />
-                <QuickLink href="/admin/packages" icon={<Package className="h-4 w-4" />} label="Packages" />
-                <QuickLink href="/admin/appointments" icon={<Calendar className="h-4 w-4" />} label="Appointments" />
-                <QuickLink href="/admin/orders" icon={<ShoppingCart className="h-4 w-4" />} label="Orders" />
-                <QuickLink href="/admin/finance" icon={<Banknote className="h-4 w-4" />} label="Finance" />
-                <QuickLink href="/admin/support" icon={<HeadphonesIcon className="h-4 w-4" />} label="Support" />
+                <QuickLink href="/admin/patients" icon={Users} label="Patients" />
+                <QuickLink href="/admin/doctors" icon={Stethoscope} label="Doctors" />
+                <QuickLink href="/admin/hospitals" icon={Building2} label="Hospitals" />
+                <QuickLink href="/admin/packages" icon={Package} label="Packages" />
+                <QuickLink href="/admin/appointments" icon={Calendar} label="Appointments" />
+                <QuickLink href="/admin/orders" icon={ShoppingCart} label="Orders" />
+                <QuickLink href="/admin/finance" icon={Banknote} label="Finance" />
+                <QuickLink href="/admin/support" icon={HeadphonesIcon} label="Support" />
               </div>
             </div>
           </Reveal>
@@ -239,14 +240,4 @@ export default async function AdminDashboard() {
   );
 }
 
-function QuickLink({ href, icon, label }: { href: string; icon: React.ReactNode; label: string }) {
-  return (
-    <Link
-      href={href}
-      className="flex items-center gap-2 rounded-xl border border-border bg-warm-white px-3 py-2.5 text-sm font-medium text-dark transition-colors hover:border-navy hover:text-navy"
-    >
-      <span className="text-teal">{icon}</span>
-      {label}
-    </Link>
-  );
-}
+

@@ -3,6 +3,7 @@ import Image from "next/image";
 import { redirect } from "next/navigation";
 import { createClient } from "@/app/lib/supabase/server";
 import { StatCard } from "@/app/components/dashboard/StatCard";
+import { QuickLink } from "@/app/components/dashboard/QuickLink";
 import { SectionHeader } from "@/app/components/dashboard/SectionHeader";
 import { ActivityFeed } from "@/app/components/dashboard/ActivityFeed";
 import { CareJourney } from "@/app/components/dashboard/CareJourney";
@@ -234,12 +235,12 @@ export default async function PatientDashboard() {
                       <h2 className="font-heading text-lg font-semibold text-navy">Quick actions</h2>
                     </div>
                     <div className="grid grid-cols-2 gap-3">
-                      <QuickLink href="/patient/case" icon={<Plus className="h-4 w-4" />} label="New case" />
-                      <QuickLink href="/doctors" icon={<Calendar className="h-4 w-4" />} label="Book doctor" />
-                      <QuickLink href="/patient/medical-records" icon={<Upload className="h-4 w-4" />} label="Upload" />
-                      <QuickLink href="/patient/messages" icon={<MessageSquare className="h-4 w-4" />} label="Messages" />
-                      <QuickLink href="/patient/travel" icon={<Plane className="h-4 w-4" />} label="Travel" />
-                      <QuickLink href="/patient/support" icon={<Headphones className="h-4 w-4" />} label="Support" />
+                      <QuickLink href="/patient/case" icon={Plus} label="New case" />
+                      <QuickLink href="/doctors" icon={Calendar} label="Book doctor" />
+                      <QuickLink href="/patient/medical-records" icon={Upload} label="Upload" />
+                      <QuickLink href="/patient/messages" icon={MessageSquare} label="Messages" />
+                      <QuickLink href="/patient/travel" icon={Plane} label="Travel" />
+                      <QuickLink href="/patient/support" icon={Headphones} label="Support" />
                     </div>
                   </div>
                 </Reveal>
@@ -395,14 +396,4 @@ export default async function PatientDashboard() {
   );
 }
 
-function QuickLink({ href, icon, label }: { href: string; icon: React.ReactNode; label: string }) {
-  return (
-    <Link
-      href={href}
-      className="flex items-center gap-2 rounded-xl border border-border bg-warm-white px-3 py-2.5 text-sm font-medium text-dark transition-colors hover:border-navy hover:text-navy"
-    >
-      <span className="text-teal">{icon}</span>
-      {label}
-    </Link>
-  );
-}
+
