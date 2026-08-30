@@ -1,3 +1,4 @@
+import { withoutTitlePrefix } from "@/app/lib/doctorName";
 import type { Case, Appointment, MedicineOrder, CaseTimeline, SupportTicket, Transaction, ActivityItem } from "@/app/lib/types";
 
 export function buildActivityFeed(params: {
@@ -27,7 +28,7 @@ export function buildActivityFeed(params: {
       id: a.id,
       type: "appointment",
       title: `Appointment scheduled`,
-      subtitle: a.dv_doctors ? `Dr. ${a.dv_doctors.name} · ${a.type}` : a.type,
+      subtitle: a.dv_doctors ? `Dr. ${withoutTitlePrefix(a.dv_doctors.name)} · ${a.type}` : a.type,
       created_at: a.scheduled_at || a.id,
       href: params.routes?.appointment || "/admin/appointments",
     });

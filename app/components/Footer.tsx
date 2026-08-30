@@ -1,9 +1,26 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { Mail, Phone, Clock, MapPin } from "lucide-react";
+import { subscribeNewsletter } from "@/app/actions/newsletter";
 
 export function Footer() {
+  const [email, setEmail] = useState("");
+  const [status, setStatus] = useState<{ ok?: boolean; message?: string } | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  async function handleSubscribe(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setLoading(true);
+    setStatus(null);
+    const formData = new FormData(e.currentTarget);
+    const result = await subscribeNewsletter(formData);
+    setLoading(false);
+    setStatus(result.ok ? { ok: true, message: "Thanks for subscribing!" } : { ok: false, message: result.error || "Could not subscribe." });
+    if (result.ok) setEmail("");
+  }
+
   return (
     <footer className="bg-navy py-16 text-white lg:py-24">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
@@ -52,15 +69,24 @@ export function Footer() {
           <div className="lg:col-span-1">
             <h4 className="font-heading text-sm font-semibold uppercase tracking-wider text-white/90">Stay updated</h4>
             <p className="mt-5 text-sm text-white/70">Get medical travel guides and health tips.</p>
-            <form className="mt-4 flex gap-2" onSubmit={(e) => e.preventDefault()}>
-              <input
-                type="email"
-                placeholder="Your email"
-                className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-white/40 outline-none focus:border-teal focus:ring-1 focus:ring-teal"
-              />
-              <button type="submit" className="rounded-lg bg-teal px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-teal/90">
-                Join
-              </button>
+            <form className="mt-4 flex flex-col gap-2" onSubmit={handleSubscribe}>
+              <div className="flex gap-2">
+                <input
+                  name="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  placeholder="Your email"
+                  className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-white/40 outline-none focus:border-teal focus:ring-1 focus:ring-teal"
+                />
+                <button type="submit" disabled={loading} className="rounded-lg bg-teal px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-teal/90 disabled:opacity-60">
+                  {loading ? "..." : "Join"}
+                </button>
+              </div>
+              {status?.message && (
+                <p className={`text-xs ${status.ok ? "text-teal" : "text-red-300"}`}>{status.message}</p>
+              )}
             </form>
           </div>
         </div>

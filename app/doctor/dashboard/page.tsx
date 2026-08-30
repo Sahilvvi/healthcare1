@@ -12,6 +12,7 @@ import { Sparkline } from "@/app/components/ui/Sparkline";
 import { Reveal } from "@/app/components/Reveal";
 import { buildActivityFeed } from "@/app/lib/activity";
 import { isDoctor } from "@/app/lib/roles";
+import { withoutTitlePrefix } from "@/app/lib/doctorName";
 import { Calendar, FileText, Pill, Users, TrendingUp, Banknote, Video, Clock } from "lucide-react";
 import type { Appointment, Case, Prescription, Transaction } from "@/app/lib/types";
 
@@ -50,7 +51,7 @@ export default async function DoctorDashboard() {
   if (!doctor) {
     return (
       <div className="space-y-6">
-        <SectionHeader title="Doctor workspace" subtitle={`Welcome back, Dr. ${profile?.name || ""}`} />
+        <SectionHeader title="Doctor workspace" subtitle={`Welcome back, Dr. ${withoutTitlePrefix(profile?.name) || ""}`} />
         <p className="text-muted">Your doctor profile is not yet linked. Contact the admin team.</p>
       </div>
     );
@@ -111,7 +112,7 @@ export default async function DoctorDashboard() {
 
   return (
     <div className="space-y-8">
-      <SectionHeader title="Doctor workspace" subtitle={`Welcome back, Dr. ${profile?.name || doctor.name || ""}`} showGreeting />
+      <SectionHeader title="Doctor workspace" subtitle={`Welcome back, Dr. ${withoutTitlePrefix(profile?.name || doctor.name) || ""}`} showGreeting />
 
       <Reveal delay={100}>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -215,7 +216,7 @@ export default async function DoctorDashboard() {
                   )}
                 </div>
                 <div>
-                  <p className="font-heading text-lg font-semibold text-navy">Dr. {doctor.name}</p>
+                  <p className="font-heading text-lg font-semibold text-navy">Dr. {withoutTitlePrefix(doctor.name)}</p>
                   <p className="text-sm text-muted">Doctor workspace</p>
                 </div>
               </div>
