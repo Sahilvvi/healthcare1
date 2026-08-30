@@ -155,27 +155,26 @@ export default async function PatientDashboard() {
         showGreeting
       />
 
-      {!activeCase ? (
+      {!activeCase && (
         <Reveal>
-          <div className="rounded-2xl border border-border bg-white p-10 text-center shadow-sm">
-            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-sage">
-              <Plus className="h-8 w-8 text-teal" />
+          <div className="rounded-2xl border border-dashed border-teal/30 bg-white p-8 text-center shadow-sm">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-sage">
+              <Plus className="h-7 w-7 text-teal" />
             </div>
-            <h2 className="mt-5 font-heading text-xl font-semibold text-navy">No active case yet</h2>
-            <p className="mx-auto mt-2 max-w-lg text-muted">
+            <h2 className="mt-4 font-heading text-lg font-semibold text-navy">No active case yet</h2>
+            <p className="mx-auto mt-2 max-w-lg text-sm text-muted">
               Share your medical details so we can prepare a personalized treatment plan, doctor shortlist and cost estimate.
             </p>
             <Link
               href="/patient/case"
-              className="mt-6 inline-flex items-center gap-2 rounded-xl bg-navy px-7 py-3 text-sm font-medium text-white transition-colors hover:bg-teal"
+              className="mt-5 inline-flex items-center gap-2 rounded-xl bg-navy px-6 py-2.5 text-sm font-medium text-white transition-colors hover:bg-teal"
             >
               <Plus className="h-4 w-4" />
               Start your case
             </Link>
           </div>
         </Reveal>
-      ) : (
-        <>
+      )}
           <Reveal delay={100}>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
               <StatCard label="Active cases" value={cases.length} subtext="Current and previous cases" href="/patient/care-plan" icon={ClipboardList} />
@@ -390,8 +389,6 @@ export default async function PatientDashboard() {
               </Reveal>
             </div>
           </div>
-        </>
-      )}
     </div>
   );
 }

@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Check, ArrowRight, Sparkles } from "lucide-react";
 import type { Package } from "../lib/types";
+import { getPackageImage } from "../lib/packageImages";
 
 const fallbackPackages: Package[] = [
   {
@@ -13,6 +14,7 @@ const fallbackPackages: Package[] = [
     stay: "10–14 days",
     specialty: "orthopedics",
     description: null,
+    image: "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&q=80&w=800",
     includes: ["Specialist consultation", "Surgery", "Hospital stay", "Follow-up", "Care coordination"],
     hospitals: [],
   },
@@ -25,6 +27,7 @@ const fallbackPackages: Package[] = [
     stay: "12–16 days",
     specialty: "cardiology",
     description: null,
+    image: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&q=80&w=800",
     includes: ["Cardiologist consultation", "Procedure", "Intensive care", "Rehabilitation plan", "Travel support"],
     hospitals: [],
   },
@@ -37,16 +40,11 @@ const fallbackPackages: Package[] = [
     stay: "30–45 days",
     specialty: "transplants",
     description: null,
+    image: "https://images.unsplash.com/photo-1581056771107-24ca5f033842?auto=format&fit=crop&q=80&w=800",
     includes: ["Transplant evaluation", "Surgery & post-op care", "Donor coordination", "Accommodation support", "Long-term follow-up"],
     hospitals: [],
   },
 ];
-
-const packageImages: Record<string, string> = {
-  "knee-replacement": "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&q=80&w=800",
-  "cardiac-bypass": "https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&q=80&w=800",
-  "liver-transplant": "https://images.unsplash.com/photo-1581056771107-24ca5f033842?auto=format&fit=crop&q=80&w=800",
-};
 
 export function TreatmentPackages({ packages }: { packages?: Package[] }) {
   const displayPackages = packages?.length ? packages : fallbackPackages;
@@ -77,7 +75,7 @@ export function TreatmentPackages({ packages }: { packages?: Package[] }) {
             >
               <div className="relative aspect-[16/9] overflow-hidden">
                 <Image
-                  src={packageImages[pkg.slug] || "https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&q=80&w=800"}
+                  src={getPackageImage(pkg.slug)}
                   alt={pkg.name}
                   fill
                   className="object-cover transition-transform duration-700 group-hover:scale-105"
