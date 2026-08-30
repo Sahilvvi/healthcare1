@@ -8,6 +8,7 @@ const navItems = [
   { href: "/admin/patients", label: "Patients" },
   { href: "/admin/doctors", label: "Doctors" },
   { href: "/admin/hospitals", label: "Hospitals" },
+  { href: "/admin/packages", label: "Packages" },
   { href: "/admin/orders", label: "Orders" },
   { href: "/admin/settings", label: "Settings" },
 ];

@@ -15,8 +15,9 @@ import type {
 
 const journeySteps = [
   { key: "NEW", label: "Medical Review" },
+  { key: "MEDICAL_REVIEW", label: "Medical Review" },
   { key: "CONSULTATION", label: "Consultation" },
-  { key: "TREATMENT_PLAN", label: "Treatment Plan" },
+  { key: "PLAN", label: "Treatment Plan" },
   { key: "TRAVEL", label: "Travel" },
   { key: "TREATMENT", label: "Treatment" },
   { key: "RECOVERY", label: "Recovery" },

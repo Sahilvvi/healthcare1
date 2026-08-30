@@ -176,3 +176,19 @@ CREATE POLICY users_select_own_travel_events ON public.dv_travel_events FOR SELE
 CREATE POLICY users_select_own_orders ON public.dv_medicine_orders FOR SELECT TO authenticated USING (patient_id = auth.uid());
 CREATE POLICY users_select_own_documents ON public.dv_documents FOR SELECT TO authenticated USING (patient_id = auth.uid());
 CREATE POLICY users_select_own_messages ON public.dv_messages FOR SELECT TO authenticated USING (case_id IN (SELECT id FROM public.dv_cases WHERE patient_id = auth.uid()));
+
+CREATE TABLE IF NOT EXISTS public.dv_contact_submissions (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  name text NOT NULL,
+  email text NOT NULL,
+  message text NOT NULL,
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+
+ALTER TABLE public.dv_contact_submissions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.dv_contact_submissions FORCE ROW LEVEL SECURITY;
+
+CREATE POLICY allow_anon_insert_contact ON public.dv_contact_submissions FOR INSERT TO anon, authenticated WITH CHECK (true);
+CREATE POLICY allow_service_all_contact ON public.dv_contact_submissions FOR ALL TO service_role USING (true) WITH CHECK (true);
+
+GRANT ALL ON public.dv_contact_submissions TO anon, authenticated, service_role;

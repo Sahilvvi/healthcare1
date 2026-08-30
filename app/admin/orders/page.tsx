@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/app/lib/supabase/server";
 import { supabaseAdmin } from "@/app/lib/supabase/admin";
 import type { MedicineOrder } from "@/app/lib/types";
+import { OrderActions } from "./OrderActions";
 
 export default async function AdminOrdersPage() {
   const supabase = await createClient();
@@ -65,7 +66,7 @@ export default async function AdminOrdersPage() {
                 <td className="px-4 py-3 text-muted">{order.dv_profiles?.name || "—"}</td>
                 <td className="px-4 py-3 text-muted">{formatItems(order.items)}</td>
                 <td className="px-4 py-3">
-                  <span className="rounded-full bg-sage px-2.5 py-1 text-xs text-dark">{order.status}</span>
+                  <OrderActions orderId={order.id} currentStatus={order.status || "PENDING"} />
                 </td>
                 <td className="px-4 py-3 text-muted">{order.total || "—"}</td>
               </tr>

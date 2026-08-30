@@ -25,14 +25,20 @@ export default async function MedicinesPage() {
   const orders: MedicineOrder[] = (ordersData as MedicineOrder[]) || [];
   const latest = orders[0];
 
-  const items = Array.isArray(latest?.items)
-    ? (latest.items as { name?: string; qty?: string; dosage?: string }[])
-    : [];
+  const rawItems = Array.isArray(latest?.items) ? latest.items : [];
+  const items = rawItems.map((it) => {
+    if (typeof it === "string") {
+      const [name, dosage, qty] = it.split(" — ");
+      return { name: name || it, dosage: dosage || "", qty: qty || "" };
+    }
+    const obj = it as { name?: string; qty?: string; dosage?: string };
+    return { name: obj.name || "Medicine", dosage: obj.dosage || "", qty: obj.qty || "" };
+  });
 
   const tracking = latest
     ? [
         { label: "Prescription received", done: true },
-        { label: "Order packed", done: ["PACKED", "OUT_FOR_DELIVERY", "DELIVERED"].includes(latest.status) },
+        { label: "Order packed", done: ["PACKING", "OUT_FOR_DELIVERY", "DELIVERED"].includes(latest.status) },
         { label: "Out for delivery", done: ["OUT_FOR_DELIVERY", "DELIVERED"].includes(latest.status) },
         { label: "Delivered", done: latest.status === "DELIVERED" },
       ]

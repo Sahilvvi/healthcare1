@@ -14,21 +14,38 @@ export async function submitCase(formData: FormData) {
   const condition = formData.get("condition") as string;
   const previousTreatment = (formData.get("previousTreatment") as string) || "";
 
-  if (!email || !password || !name || !country || !category || !condition) {
-    return { error: "Please fill in all required fields." };
+  if (!category || !condition) {
+    return { error: "Please select a category and describe your condition." };
   }
-
-  let userId: string;
-  let isNew = false;
 
   const supabase = await createClient();
   const {
     data: { user: existingUser },
   } = await supabase.auth.getUser();
 
+  let userId: string;
+  let isNew = false;
+  let finalEmail = email;
+  let finalCountry = country;
+  let finalCity = city;
+
   if (existingUser) {
     userId = existingUser.id;
+    finalEmail = finalEmail || existingUser.email || "";
+
+    const { data: profile } = await supabaseAdmin
+      .from("dv_profiles")
+      .select("name, country, phone")
+      .eq("id", userId)
+      .single();
+
+    finalCountry = finalCountry || profile?.country || existingUser.user_metadata?.country || "";
+    finalCity = finalCity || existingUser.user_metadata?.city || "";
   } else {
+    if (!email || !password || !name || !country) {
+      return { error: "Please fill in all required account details." };
+    }
+
     const { data: userData, error: createError } =
       await supabaseAdmin.auth.admin.createUser({
         email,
@@ -46,6 +63,9 @@ export async function submitCase(formData: FormData) {
 
     userId = userData.user.id;
     isNew = true;
+    finalEmail = email;
+    finalCountry = country;
+    finalCity = city;
 
     const { error: profileError } = await supabaseAdmin.from("dv_profiles").insert({
       id: userId,
@@ -67,8 +87,8 @@ export async function submitCase(formData: FormData) {
       category,
       condition,
       previous_treatment: previousTreatment || null,
-      city,
-      country,
+      city: finalCity || null,
+      country: finalCountry || null,
       status: "NEW",
     })
     .select()
@@ -90,5 +110,5 @@ export async function submitCase(formData: FormData) {
     return { error: timelineError.message };
   }
 
-  return { ok: true, email, isNew };
+  return { ok: true, email: finalEmail, isNew };
 }

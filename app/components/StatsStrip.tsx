@@ -1,11 +1,13 @@
-export function StatsStrip() {
-  const stats = [
-    { value: "1,200+", label: "Patients guided this year" },
+export function StatsStrip({
+  stats = [
+    { value: "1,200+", label: "Patients guided" },
     { value: "40+", label: "Verified hospitals" },
     { value: "60+", label: "Specialist doctors" },
     { value: "15+", label: "Countries served" },
-  ];
-
+  ],
+}: {
+  stats?: { value: string; label: string }[];
+}) {
   return (
     <section className="border-y border-border bg-white py-10 lg:py-12">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">

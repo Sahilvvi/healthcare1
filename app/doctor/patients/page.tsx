@@ -70,7 +70,7 @@ export default async function DoctorPatientsPage() {
                       <span className="rounded-full bg-sage px-2.5 py-1 text-xs text-dark">{p.status}</span>
                     </td>
                     <td className="py-4 text-right">
-                      <Link href="/doctor/dashboard" className="text-sm font-medium text-teal hover:text-navy">
+                      <Link href={`/doctor/case/${p.id}`} className="text-sm font-medium text-teal hover:text-navy">
                         Open case
                       </Link>
                     </td>

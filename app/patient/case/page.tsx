@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/app/lib/supabase/client";
@@ -25,6 +25,8 @@ const steps = [
 
 export default function PatientCasePage() {
   const [step, setStep] = useState(0);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [checkingAuth, setCheckingAuth] = useState(true);
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -43,20 +45,35 @@ export default function PatientCasePage() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
+  useEffect(() => {
+    async function checkUser() {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setIsAuthenticated(true);
+        setForm((prev) => ({
+          ...prev,
+          email: user.email || prev.email,
+          name: user.user_metadata?.name || prev.name,
+          country: user.user_metadata?.country || prev.country,
+          city: user.user_metadata?.city || prev.city,
+          phone: user.user_metadata?.phone || prev.phone,
+        }));
+        setStep(1);
+      }
+      setCheckingAuth(false);
+    }
+    checkUser();
+  }, []);
+
   function updateField(field: keyof typeof form, value: string) {
     setForm((prev) => ({ ...prev, [field]: value }));
   }
 
   function canProceed() {
     if (step === 0) {
-      return (
-        form.name &&
-        form.email &&
-        form.password.length >= 6 &&
-        form.confirmPassword &&
-        form.password === form.confirmPassword &&
-        form.country
-      );
+      const passwordOk = isAuthenticated || (form.password.length >= 6 && form.password === form.confirmPassword);
+      return form.name && form.email && passwordOk && form.country;
     }
     if (step === 1) {
       return form.category && form.condition;
@@ -69,7 +86,7 @@ export default function PatientCasePage() {
     setError(null);
     setSubmittedError(null);
 
-    if (form.password !== form.confirmPassword) {
+    if (!isAuthenticated && form.password !== form.confirmPassword) {
       setError("Passwords do not match.");
       return;
     }
@@ -142,6 +159,16 @@ export default function PatientCasePage() {
               Browse doctors
             </Link>
           </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (checkingAuth) {
+    return (
+      <section className="bg-warm-white py-10 lg:py-16">
+        <div className="mx-auto max-w-6xl px-6 lg:px-8">
+          <p className="text-sm text-muted">Loading...</p>
         </div>
       </section>
     );
