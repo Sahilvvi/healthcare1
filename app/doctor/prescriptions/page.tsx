@@ -1,98 +1,65 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/app/lib/supabase/server";
 import { supabaseAdmin } from "@/app/lib/supabase/admin";
-import type { MedicineOrder } from "@/app/lib/types";
+import { SectionHeader } from "@/app/components/dashboard/SectionHeader";
+import { Badge } from "@/app/components/dashboard/Badge";
+import { isDoctor } from "@/app/lib/roles";
+import type { Prescription } from "@/app/lib/types";
+import { PrescriptionForm } from "./PrescriptionForm";
 
-interface MedicineOrderWithProfile extends MedicineOrder {
-  dv_profiles?: { name: string } | null;
+function formatDate(ts: string) {
+  return new Date(ts).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
 }
 
 export default async function DoctorPrescriptionsPage() {
   const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
 
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
+  const { data: profile } = await supabase.from("dv_profiles").select("role").eq("id", user.id).single();
+  if (!isDoctor(profile?.role)) redirect("/login");
 
-  if (userError || !user) {
-    redirect("/login");
-  }
+  const [{ data: prescriptions }, { data: cases }] = await Promise.all([
+    supabaseAdmin.from("dv_prescriptions").select("*, dv_profiles(name)").eq("doctor_id", user.id).order("created_at", { ascending: false }).limit(50),
+    supabaseAdmin.from("dv_cases").select("id, category, patient_id").order("created_at", { ascending: false }).limit(50),
+  ]);
 
-  const { data: profile } = await supabase
-    .from("dv_profiles")
-    .select("role")
-    .eq("id", user.id)
-    .single();
-
-  const role = (profile as { role?: string } | null)?.role;
-  if (role !== "doctor" && role !== "admin") {
-    redirect("/patient/dashboard");
-  }
-
-  const { data: ordersData } = await supabaseAdmin
-    .from("dv_medicine_orders")
-    .select("*, dv_profiles(name)")
-    .order("created_at", { ascending: false })
-    .limit(50);
-
-  const orders: MedicineOrderWithProfile[] =
-    (ordersData as MedicineOrderWithProfile[]) || [];
-
-  function formatItems(items: unknown): string {
-    if (Array.isArray(items)) return items.map(String).join(", ");
-    if (typeof items === "string") return items;
-    return "—";
-  }
+  const list: Prescription[] = (prescriptions || []) as Prescription[];
 
   return (
-    <section className="bg-warm-white py-10 lg:py-16">
-      <div className="mx-auto max-w-5xl px-6 lg:px-8">
-        <div className="mb-8 flex items-center justify-between">
-          <div>
-            <h1 className="font-heading text-3xl font-semibold text-navy md:text-4xl">
-              Prescriptions
-            </h1>
-            <p className="mt-2 text-muted">Manage and review patient prescriptions.</p>
-          </div>
-          <Link href="/doctor/dashboard" className="text-sm font-medium text-teal hover:text-navy">
-            Back to dashboard
-          </Link>
-        </div>
+    <div className="space-y-8">
+      <SectionHeader title="Prescriptions" subtitle="Write, review and manage patient prescriptions" />
 
-        <div className="rounded-lg border border-border bg-white p-6 shadow-sm">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
-              <thead className="border-b border-border text-muted">
-                <tr>
-                  <th className="py-3 font-medium">Patient</th>
-                  <th className="py-3 font-medium">Items</th>
-                  <th className="py-3 font-medium">Status</th>
-                  <th className="py-3 font-medium">Total</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border">
-                {orders.map((p) => (
-                  <tr key={p.id}>
-                    <td className="py-4 text-dark">{p.dv_profiles?.name || "—"}</td>
-                    <td className="py-4 text-muted">{formatItems(p.items)}</td>
-                    <td className="py-4">
-                      <span className="rounded-full bg-sage px-2.5 py-1 text-xs text-dark">{p.status}</span>
-                    </td>
-                    <td className="py-4 text-muted">{p.total || "—"}</td>
-                  </tr>
-                ))}
-                {orders.length === 0 && (
-                  <tr>
-                    <td className="py-4 text-muted" colSpan={4}>No prescriptions yet.</td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
+      <div className="rounded-xl border border-border bg-white p-6 shadow-sm">
+        <h2 className="font-heading text-lg font-semibold text-navy">New prescription</h2>
+        <PrescriptionForm cases={cases || []} />
       </div>
-    </section>
+
+      <div className="overflow-hidden rounded-xl border border-border bg-white shadow-sm">
+        <table className="w-full text-left text-sm">
+          <thead className="border-b border-border bg-warm-white text-muted">
+            <tr>
+              <th className="px-5 py-3 font-medium">Patient</th>
+              <th className="px-5 py-3 font-medium">Medications</th>
+              <th className="px-5 py-3 font-medium">Status</th>
+              <th className="px-5 py-3 font-medium">Date</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-border">
+            {list.map((rx) => (
+              <tr key={rx.id}>
+                <td className="px-5 py-4 text-dark">{rx.dv_profiles?.name || "—"}</td>
+                <td className="px-5 py-4 text-muted">
+                  {rx.medications?.map((m) => `${m.name} ${m.dosage}`).join(", ") || "—"}
+                </td>
+                <td className="px-5 py-4"><Badge tone={rx.status === "ACTIVE" ? "success" : "default"}>{rx.status}</Badge></td>
+                <td className="px-5 py-4 text-muted">{formatDate(rx.created_at)}</td>
+              </tr>
+            ))}
+            {list.length === 0 && <tr><td className="px-5 py-4 text-muted" colSpan={4}>No prescriptions yet.</td></tr>}
+          </tbody>
+        </table>
+      </div>
+    </div>
   );
 }

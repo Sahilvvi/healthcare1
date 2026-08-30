@@ -1,81 +1,65 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/app/lib/supabase/server";
 import { supabaseAdmin } from "@/app/lib/supabase/admin";
+import { SectionHeader } from "@/app/components/dashboard/SectionHeader";
+import { Badge } from "@/app/components/dashboard/Badge";
+import { isDoctor } from "@/app/lib/roles";
+import { CaseNoteForm } from "./CaseNoteForm";
 
 interface CaseNote {
   id: string;
   case_id: string;
-  doctor_id: string;
   note: string;
   created_at: string;
   dv_cases?: {
-    patient_id: string;
     dv_profiles?: { name: string } | null;
   } | null;
 }
 
+function formatDate(ts: string) {
+  return new Date(ts).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
+}
+
 export default async function DoctorCaseNotesPage() {
   const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect("/login");
 
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
+  const { data: profile } = await supabase.from("dv_profiles").select("role").eq("id", user.id).single();
+  if (!isDoctor(profile?.role)) redirect("/login");
 
-  if (userError || !user) {
-    redirect("/login");
-  }
-
-  const { data: profile } = await supabase
-    .from("dv_profiles")
-    .select("role")
-    .eq("id", user.id)
-    .single();
-
-  const role = (profile as { role?: string } | null)?.role;
-  if (role !== "doctor" && role !== "admin") {
-    redirect("/patient/dashboard");
-  }
-
-  const { data: notesData } = await supabaseAdmin
-    .from("dv_case_notes")
-    .select("*, dv_cases!case_id(patient_id, dv_profiles!patient_id(name))")
-    .order("created_at", { ascending: false })
-    .limit(50);
+  const [{ data: notesData }, { data: cases }] = await Promise.all([
+    supabaseAdmin
+      .from("dv_case_notes")
+      .select("*, dv_cases!case_id(id, patient_id, dv_profiles!patient_id(name))")
+      .order("created_at", { ascending: false })
+      .limit(50),
+    supabaseAdmin.from("dv_cases").select("id, category, patient_id").order("created_at", { ascending: false }).limit(50),
+  ]);
 
   const notes: CaseNote[] = (notesData as unknown as CaseNote[]) || [];
 
   return (
-    <section className="bg-warm-white py-10 lg:py-16">
-      <div className="mx-auto max-w-4xl px-6 lg:px-8">
-        <div className="mb-8 flex items-center justify-between">
-          <div>
-            <h1 className="font-heading text-3xl font-semibold text-navy md:text-4xl">Case notes</h1>
-            <p className="mt-2 text-muted">Review and update patient case notes.</p>
-          </div>
-          <Link href="/doctor/dashboard" className="text-sm font-medium text-teal hover:text-navy">
-            Back to dashboard
-          </Link>
-        </div>
+    <div className="space-y-8">
+      <SectionHeader title="Case notes" subtitle="Review and update patient case notes" />
 
-        <div className="space-y-4">
-          {notes.map((n) => (
-            <div key={n.id} className="rounded-lg border border-border bg-white p-6 shadow-sm">
-              <div className="flex items-center justify-between">
-                <p className="font-heading font-semibold text-navy">
-                  {n.dv_cases?.dv_profiles?.name || "Patient"}
-                </p>
-                <span className="text-xs text-muted">{new Date(n.created_at).toLocaleDateString()}</span>
-              </div>
-              <p className="mt-2 text-sm text-muted">{n.note}</p>
-            </div>
-          ))}
-          {notes.length === 0 && (
-            <p className="text-sm text-muted">No case notes yet.</p>
-          )}
-        </div>
+      <div className="rounded-xl border border-border bg-white p-6 shadow-sm">
+        <h2 className="font-heading text-lg font-semibold text-navy">Add note</h2>
+        <CaseNoteForm cases={cases || []} />
       </div>
-    </section>
+
+      <div className="space-y-4">
+        {notes.map((n) => (
+          <div key={n.id} className="rounded-xl border border-border bg-white p-6 shadow-sm">
+            <div className="flex items-center justify-between">
+              <p className="font-heading font-semibold text-navy">{n.dv_cases?.dv_profiles?.name || "Patient"}</p>
+              <Badge tone="info">{formatDate(n.created_at)}</Badge>
+            </div>
+            <p className="mt-3 text-sm text-muted">{n.note}</p>
+          </div>
+        ))}
+        {notes.length === 0 && <p className="text-sm text-muted">No case notes yet.</p>}
+      </div>
+    </div>
   );
 }

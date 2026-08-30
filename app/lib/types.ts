@@ -13,6 +13,7 @@ export interface Doctor {
   availability: string;
   hospitals: string[];
   image: string;
+  user_id?: string | null;
 }
 
 export interface Hospital {
@@ -118,4 +119,49 @@ export interface Message {
   sender_id: string;
   content: string;
   created_at: string;
+}
+
+export interface Prescription {
+  id: string;
+  case_id: string | null;
+  patient_id: string;
+  doctor_id: string | null;
+  medications: { name: string; dosage: string; frequency: string; duration: string }[];
+  notes: string | null;
+  status: string;
+  created_at: string;
+  dv_profiles?: { name: string } | null;
+}
+
+export interface SupportTicket {
+  id: string;
+  user_id: string;
+  subject: string;
+  message: string;
+  status: string;
+  priority: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Transaction {
+  id: string;
+  type: "income" | "cost" | "refund";
+  category: string | null;
+  amount: number;
+  currency: string;
+  description: string | null;
+  case_id: string | null;
+  patient_id: string | null;
+  doctor_id: string | null;
+  created_at: string;
+}
+
+export interface ActivityItem {
+  id: string;
+  type: "case" | "appointment" | "order" | "timeline" | "ticket" | "transaction";
+  title: string;
+  subtitle: string | null;
+  created_at: string;
+  href: string | null;
 }

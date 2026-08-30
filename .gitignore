@@ -39,6 +39,7 @@ yarn-error.log*
 
 # temporary introspection files
 swagger.json
+/supabase/.temp
 
 # typescript
 *.tsbuildinfo
