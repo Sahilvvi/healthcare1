@@ -1,6 +1,4 @@
 import { supabasePublic } from "@/app/lib/supabase/public";
-import { doctors as fallbackDoctors } from "@/app/lib/doctors";
-import { packages as fallbackPackages } from "@/app/lib/packages";
 import { TreatmentPlanFlow } from "./TreatmentPlanFlow";
 import type { Doctor, Package } from "@/app/lib/types";
 
@@ -31,8 +29,8 @@ export default async function TreatmentPlanPage() {
     supabasePublic.from("dv_packages").select("*"),
   ]);
 
-  const doctors: Doctor[] = (doctorsData as Doctor[])?.length ? (doctorsData as Doctor[]) : (fallbackDoctors as unknown as Doctor[]);
-  const packages: Package[] = (packagesData as Package[])?.length ? (packagesData as Package[]) : (fallbackPackages as unknown as Package[]);
+  const doctors: Doctor[] = (doctorsData as Doctor[]) || [];
+  const packages: Package[] = (packagesData as Package[]) || [];
 
   const categories = categoryMap.map((c) => ({ key: c.key, label: c.label }));
 
@@ -43,18 +41,7 @@ export default async function TreatmentPlanPage() {
       .map((d) => ({ name: d.name, specialty: d.specialty }));
   }
 
-  const fallbackSummaries: Record<string, { title: string; doctor: string; hospital: string; cost: string; stay: string }> = {
-    cardiology: { title: "Cardiac Evaluation & Intervention Package", doctor: "Dr. Ananya Sharma", hospital: "Apollo Chennai", cost: "$3,500", stay: "5–7 days" },
-    "cancer-care": { title: "Oncology Evaluation Package", doctor: "Dr. Priya Kulkarni", hospital: "Tata Memorial Mumbai", cost: "$2,800", stay: "7–10 days" },
-    orthopedics: { title: "Knee Replacement Package", doctor: "Dr. Rajiv Menon", hospital: "Apollo Chennai", cost: "$4,800", stay: "10–14 days" },
-    neurology: { title: "Neurology Consultation & Investigation Package", doctor: "Dr. Vikram Iyer", hospital: "NIMHANS Bengaluru", cost: "$2,200", stay: "5–7 days" },
-    transplants: { title: "Transplant Evaluation & Coordination", doctor: "Assigned transplant team", hospital: "Apollo Chennai", cost: "On request", stay: "30–45 days" },
-    "womens-health": { title: "Women's Health Screening Package", doctor: "Assigned gynaecology specialist", hospital: "Apollo Chennai", cost: "$800", stay: "2–3 days" },
-    dental: { title: "Dental Implants Package", doctor: "Assigned dental surgeon", hospital: "Apollo Chennai", cost: "$1,200", stay: "5–7 days" },
-    wellness: { title: "Executive Wellness Checkup", doctor: "Assigned physician", hospital: "Apollo Chennai", cost: "$600", stay: "1–2 days" },
-  };
-
-  const summaries: Record<string, { title: string; doctor: string; hospital: string; cost: string; stay: string }> = {};
+  const summaries: Record<string, { title: string; doctor: string; hospital: string; cost: string; stay: string } | null> = {};
   for (const category of categoryMap) {
     const pkg = packages.find((p) => {
       const matched = matchCategory(p.specialty);
@@ -71,7 +58,7 @@ export default async function TreatmentPlanPage() {
         stay: pkg.stay || "TBC",
       };
     } else {
-      summaries[category.key] = fallbackSummaries[category.key];
+      summaries[category.key] = null;
     }
   }
 

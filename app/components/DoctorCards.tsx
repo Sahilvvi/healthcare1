@@ -1,11 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
-import { doctors as fallbackDoctors } from "../lib/doctors";
 import type { Doctor } from "../lib/types";
 import { Star, Award, ArrowRight } from "lucide-react";
 
 export function DoctorCards({ doctors }: { doctors?: Doctor[] }) {
-  const displayDoctors = doctors?.length ? doctors.slice(0, 3) : (fallbackDoctors as unknown as Doctor[]).slice(0, 3);
+  const displayDoctors = (doctors || []).slice(0, 3);
   return (
     <section id="doctors" className="bg-warm-white py-24 lg:py-32">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
