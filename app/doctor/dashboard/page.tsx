@@ -67,29 +67,35 @@ export default async function DoctorDashboard() {
   ] = await Promise.all([
     supabaseAdmin
       .from("dv_appointments")
-      .select("*, dv_cases(id, status, dv_profiles(id, name, country, city))")
+      .select("*, dv_cases(patient_id, dv_profiles!patient_id(name, country))")
       .eq("doctor_id", doctor.id)
       .order("scheduled_at", { ascending: true })
       .limit(200),
     supabaseAdmin
       .from("dv_cases")
-      .select("*, dv_profiles(id, name, country, city)")
+      .select("*, dv_profiles(name, country)")
       .in("status", ["NEW", "MEDICAL_REVIEW", "CONSULTATION"])
       .order("created_at", { ascending: false })
       .limit(20),
     supabaseAdmin
       .from("dv_prescriptions")
-      .select("*, dv_profiles(id, name)")
-      .eq("doctor_id", doctor.id)
+      .select("*")
+      .eq("doctor_id", user.id)
       .order("created_at", { ascending: false })
       .limit(20),
     supabaseAdmin.from("dv_transactions").select("*").eq("doctor_id", doctor.id).order("created_at", { ascending: true }).limit(500),
   ]);
 
   const appointments: Appointment[] = (appointmentsData || []) as Appointment[];
-  const cases: (Case & { dv_profiles?: { name?: string; country?: string; city?: string } | null })[] = (pendingCasesData || []) as unknown as (Case & { dv_profiles?: { name?: string; country?: string; city?: string } | null })[];
-  const prescriptions: (Prescription & { dv_profiles?: { name?: string } | null })[] = (prescriptionsData || []) as unknown as (Prescription & { dv_profiles?: { name?: string } | null })[];
+  const cases: (Case & { dv_profiles?: { name?: string; country?: string } | null })[] = (pendingCasesData || []) as (Case & { dv_profiles?: { name?: string; country?: string } | null })[];
+  const prescriptions: Prescription[] = (prescriptionsData || []) as Prescription[];
   const transactions: Transaction[] = (transactionsData || []) as Transaction[];
+
+  const presPatientIds = Array.from(new Set(prescriptions.map((rx) => rx.patient_id).filter(Boolean))) as string[];
+  const { data: presProfiles } = presPatientIds.length
+    ? await supabaseAdmin.from("dv_profiles").select("id, name").in("id", presPatientIds)
+    : { data: [] };
+  const prescriptionProfileMap = new Map((presProfiles || []).map((p: { id: string; name: string }) => [p.id, p.name]));
 
   const todayAppointments = appointments.filter((a) => a.scheduled_at?.startsWith(today));
   const upcoming = appointments.filter((a) => a.scheduled_at && a.scheduled_at >= new Date().toISOString());
@@ -99,7 +105,7 @@ export default async function DoctorDashboard() {
   const uniquePatients = new Set(
     appointments
       .filter((a) => a.case_id)
-      .map((a) => (a as unknown as { dv_cases?: { patient_id?: string } | null }).dv_cases?.patient_id)
+      .map((a) => a.dv_cases?.patient_id)
       .filter(Boolean)
   ).size;
 
@@ -163,7 +169,7 @@ export default async function DoctorDashboard() {
                         </div>
                         <div>
                           <p className="text-sm font-medium text-dark">{a.type}</p>
-                          <p className="text-xs text-muted">{formatTime(a.scheduled_at)} · {(a as unknown as { dv_cases?: { dv_profiles?: { name?: string } | null } | null }).dv_cases?.dv_profiles?.name || "Patient"}</p>
+                          <p className="text-xs text-muted">{formatTime(a.scheduled_at)} · {a.dv_cases?.dv_profiles?.name || "Patient"}</p>
                         </div>
                       </div>
                       <Badge tone={a.status === "COMPLETED" ? "success" : a.status === "SCHEDULED" ? "info" : "warning"}>{a.status}</Badge>
@@ -245,7 +251,7 @@ export default async function DoctorDashboard() {
                         <Pill className="h-5 w-5 text-teal" />
                         <div>
                           <p className="text-sm font-medium text-dark">{rx.medications?.[0]?.name || "Prescription"}</p>
-                          <p className="text-xs text-muted">{rx.dv_profiles?.name || "Patient"} · {rx.status}</p>
+                          <p className="text-xs text-muted">{prescriptionProfileMap.get(rx.patient_id) || "Patient"} · {rx.status}</p>
                         </div>
                       </div>
                     </li>

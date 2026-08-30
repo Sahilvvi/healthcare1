@@ -20,11 +20,17 @@ export default async function DoctorPrescriptionsPage() {
   if (!isDoctor(profile?.role)) redirect("/login");
 
   const [{ data: prescriptions }, { data: cases }] = await Promise.all([
-    supabaseAdmin.from("dv_prescriptions").select("*, dv_profiles(name)").eq("doctor_id", user.id).order("created_at", { ascending: false }).limit(50),
+    supabaseAdmin.from("dv_prescriptions").select("*").eq("doctor_id", user.id).order("created_at", { ascending: false }).limit(50),
     supabaseAdmin.from("dv_cases").select("id, category, patient_id").order("created_at", { ascending: false }).limit(50),
   ]);
 
   const list: Prescription[] = (prescriptions || []) as Prescription[];
+
+  const patientIds = Array.from(new Set(list.map((rx) => rx.patient_id).filter(Boolean))) as string[];
+  const { data: profiles } = patientIds.length
+    ? await supabaseAdmin.from("dv_profiles").select("id, name").in("id", patientIds)
+    : { data: [] };
+  const profileMap = new Map((profiles || []).map((p: { id: string; name: string }) => [p.id, p.name]));
 
   return (
     <div className="space-y-8">
@@ -48,7 +54,7 @@ export default async function DoctorPrescriptionsPage() {
           <tbody className="divide-y divide-border">
             {list.map((rx) => (
               <tr key={rx.id}>
-                <td className="px-5 py-4 text-dark">{rx.dv_profiles?.name || "—"}</td>
+                <td className="px-5 py-4 text-dark">{profileMap.get(rx.patient_id) || "—"}</td>
                 <td className="px-5 py-4 text-muted">
                   {rx.medications?.map((m) => `${m.name} ${m.dosage}`).join(", ") || "—"}
                 </td>

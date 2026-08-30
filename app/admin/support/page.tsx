@@ -21,8 +21,14 @@ export default async function AdminSupportPage() {
   const { data: profile } = await supabase.from("dv_profiles").select("role").eq("id", user.id).single();
   if (!isAdmin(profile?.role)) redirect("/login");
 
-  const { data } = await supabaseAdmin.from("dv_support_tickets").select("*, dv_profiles(name)").order("created_at", { ascending: false }).limit(100);
+  const { data } = await supabaseAdmin.from("dv_support_tickets").select("*").order("created_at", { ascending: false }).limit(100);
   const tickets: TicketRow[] = (data as TicketRow[]) || [];
+
+  const userIds = Array.from(new Set(tickets.map((t) => t.user_id).filter(Boolean))) as string[];
+  const { data: profiles } = userIds.length
+    ? await supabaseAdmin.from("dv_profiles").select("id, name").in("id", userIds)
+    : { data: [] };
+  const profileMap = new Map((profiles || []).map((p: { id: string; name: string }) => [p.id, p.name]));
 
   return (
     <div className="space-y-6">
@@ -43,7 +49,7 @@ export default async function AdminSupportPage() {
             {tickets.map((t) => (
               <tr key={t.id}>
                 <td className="px-5 py-4 text-muted">{formatDate(t.created_at)}</td>
-                <td className="px-5 py-4 text-dark">{t.dv_profiles?.name || "—"}</td>
+                <td className="px-5 py-4 text-dark">{profileMap.get(t.user_id) || "—"}</td>
                 <td className="px-5 py-4">
                   <p className="font-medium text-dark">{t.subject}</p>
                   <p className="mt-1 text-xs text-muted">{t.message}</p>
