@@ -1,11 +1,11 @@
 "use client";
 
-import { redirect, usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { createClient } from "@/app/lib/supabase/client";
 import { SignOutButton } from "@/app/components/SignOutButton";
-import { isAdmin } from "@/app/lib/roles";
+import { isAdmin, roleDashboard } from "@/app/lib/roles";
 import {
   LayoutDashboard,
   Users,
@@ -55,6 +55,7 @@ const nav = [
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
   const [profile, setProfile] = useState<{ name: string; role: string } | null>(null);
   const [open, setOpen] = useState(false);
 
@@ -64,13 +65,19 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       const {
         data: { user },
       } = await supabase.auth.getUser();
-      if (!user) return redirect("/login");
+      if (!user) {
+        router.replace("/login");
+        return;
+      }
       const { data } = await supabase.from("dv_profiles").select("name, role").eq("id", user.id).single();
-      if (!data || !isAdmin(data.role)) return redirect("/login");
+      if (!data || !isAdmin(data.role)) {
+        router.replace(data?.role ? roleDashboard(data.role) : "/login");
+        return;
+      }
       setProfile({ name: data.name, role: data.role });
     }
     load();
-  }, []);
+  }, [router]);
 
   const linkClass = (active: boolean) =>
     `flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${

@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/app/lib/supabase/server";
 import { Sidebar } from "@/app/components/Sidebar";
-import { isDoctor } from "@/app/lib/roles";
+import { isDoctor, roleDashboard } from "@/app/lib/roles";
 
 export const metadata = {
   title: "Doctor Workspace | Dadashri Vishwa Healthcare",
@@ -25,7 +25,10 @@ export default async function DoctorLayout({
     .eq("id", user.id)
     .single();
 
-  if (!isDoctor(profile?.role)) redirect("/login");
+  if (!isDoctor(profile?.role)) {
+    const dest = profile?.role ? roleDashboard(profile.role) : "/login";
+    redirect(dest);
+  }
 
   const nav = [
     {
