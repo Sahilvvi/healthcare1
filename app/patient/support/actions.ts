@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/app/lib/supabase/server";
+import { supabaseAdmin } from "@/app/lib/supabase/admin";
 import { revalidatePath } from "next/cache";
 
 export async function createSupportTicket(formData: FormData) {
@@ -14,7 +15,7 @@ export async function createSupportTicket(formData: FormData) {
 
   if (!subject || !message) return { error: "Subject and message are required" };
 
-  const { error } = await supabase.from("dv_support_tickets").insert({
+  const { error } = await supabaseAdmin.from("dv_support_tickets").insert({
     user_id: user.id,
     subject,
     message,
