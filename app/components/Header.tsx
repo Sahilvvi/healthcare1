@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 const navLinks = [
   { href: "/treatment-plan", label: "Treatments" },
@@ -13,49 +14,76 @@ const navLinks = [
 
 export function Header() {
   const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const pathname = usePathname();
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border bg-warm-white/90 backdrop-blur">
+    <header
+      className={`sticky top-0 z-50 border-b transition-all duration-300 ${
+        scrolled
+          ? "border-border/80 bg-warm-white/95 shadow-sm backdrop-blur"
+          : "border-transparent bg-warm-white/70 backdrop-blur-sm"
+      }`}
+    >
       <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4 lg:px-8">
-        <Link href="/" className="font-heading text-xl font-semibold text-navy">
-          Dadashri Vishwa Healthcare
+        <Link href="/" className="group flex items-center gap-2 font-heading text-xl font-semibold text-navy">
+          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-navy text-white text-sm font-bold transition-transform duration-300 group-hover:scale-105">
+            D
+          </span>
+          <span className="hidden sm:inline">Dadashri Vishwa Healthcare</span>
+          <span className="sm:hidden">Dadashri</span>
         </Link>
 
         <nav className="hidden items-center gap-8 text-sm font-medium text-dark md:flex">
-          {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className="transition-colors hover:text-teal"
-            >
-              {link.label}
-            </Link>
-          ))}
+          {navLinks.map((link) => {
+            const active = pathname === link.href || (link.href !== "/" && pathname.startsWith(link.href.split("#")[0]));
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="group relative py-2 transition-colors hover:text-teal"
+              >
+                {link.label}
+                <span
+                  className={`absolute bottom-0 left-0 h-0.5 w-full origin-left bg-teal transition-transform duration-300 ${
+                    active ? "scale-x-100" : "scale-x-0 group-hover:scale-x-100"
+                  }`}
+                />
+              </Link>
+            );
+          })}
         </nav>
 
         <div className="hidden items-center gap-4 md:flex">
           <Link
             href="/search"
             aria-label="Search"
-            className="text-dark transition-colors hover:text-teal"
+            className="rounded-full p-2 text-dark transition-colors hover:bg-sage/50 hover:text-teal"
           >
             <SearchIcon />
           </Link>
           <Link
             href="/login"
-            className="text-sm font-medium text-dark hover:text-navy"
+            className="text-sm font-medium text-dark transition-colors hover:text-navy"
           >
             Log in
           </Link>
           <Link
             href="/signup"
-            className="text-sm font-medium text-dark hover:text-navy"
+            className="text-sm font-medium text-navy transition-colors hover:text-teal"
           >
             Sign up
           </Link>
           <Link
             href="/treatment-plan"
-            className="rounded-md bg-navy px-4 py-2.5 text-sm font-medium text-white shadow-sm transition-colors hover:bg-teal"
+            className="btn-primary rounded-full bg-navy px-5 py-2.5 text-sm font-medium text-white shadow-sm hover:bg-teal"
           >
             Get Treatment Plan
           </Link>
@@ -65,7 +93,7 @@ export function Header() {
           type="button"
           aria-label={open ? "Close menu" : "Open menu"}
           onClick={() => setOpen((s) => !s)}
-          className="rounded-md p-2 text-navy md:hidden"
+          className="rounded-md p-2 text-navy transition-colors hover:bg-sage/50 md:hidden"
         >
           {open ? <CloseIcon /> : <MenuIcon />}
         </button>
@@ -109,7 +137,7 @@ export function Header() {
               <Link
                 href="/treatment-plan"
                 onClick={() => setOpen(false)}
-                className="rounded-md bg-navy px-4 py-2.5 text-center text-sm font-medium text-white transition-colors hover:bg-teal"
+                className="rounded-full bg-navy px-4 py-2.5 text-center text-sm font-medium text-white transition-colors hover:bg-teal"
               >
                 Get Treatment Plan
               </Link>

@@ -1,4 +1,6 @@
 import Image from "next/image";
+import { Reveal } from "./Reveal";
+import { Quote } from "lucide-react";
 
 const testimonials = [
   {
@@ -29,40 +31,41 @@ const testimonials = [
 
 export function TestimonialPreview() {
   return (
-    <section className="bg-sage/30 py-20 lg:py-28">
-      <div className="mx-auto max-w-7xl px-6 lg:px-8">
-        <div className="mb-14 max-w-2xl">
-          <p className="text-sm font-semibold uppercase tracking-widest text-teal">
-            Patient stories
-          </p>
-          <h2 className="mt-3 font-heading text-3xl font-semibold text-navy md:text-4xl">
-            Trusted by patients across the world
-          </h2>
-        </div>
+    <section className="relative overflow-hidden bg-sage/30 py-24 lg:py-32">
+      <div className="absolute inset-0 bg-dot-pattern opacity-20" />
+      <div className="relative mx-auto max-w-7xl px-6 lg:px-8">
+        <Reveal>
+          <div className="mb-14 max-w-2xl">
+            <p className="text-sm font-semibold uppercase tracking-widest text-teal">Patient stories</p>
+            <h2 className="mt-3 font-heading text-4xl font-semibold text-navy md:text-5xl">
+              Trusted by patients across the world
+            </h2>
+          </div>
+        </Reveal>
         <div className="grid gap-6 lg:grid-cols-3">
-          {testimonials.map((t) => (
-            <div
-              key={t.name}
-              className="rounded-lg border border-border bg-white p-8 shadow-sm transition-shadow duration-300 hover:shadow-md"
-            >
-              <p className="text-lg leading-relaxed text-dark">&ldquo;{t.quote}&rdquo;</p>
-              <div className="mt-8 flex items-center gap-4">
-                <div className="h-12 w-12 overflow-hidden rounded-full bg-sage">
-                  <Image
-                    src={t.image}
-                    alt={t.name}
-                    width={48}
-                    height={48}
-                    className="h-full w-full object-cover"
-                  />
-                </div>
-                <div>
-                  <p className="font-heading text-sm font-semibold text-navy">{t.name}</p>
-                  <p className="text-xs text-muted">{t.location}</p>
-                  <p className="text-xs text-teal">{t.treatment}</p>
+          {testimonials.map((t, i) => (
+            <Reveal key={t.name} delay={i * 120}>
+              <div className="group relative h-full rounded-2xl border border-border bg-white p-8 shadow-sm card-hover">
+                <Quote className="h-8 w-8 text-sage" />
+                <p className="mt-4 text-lg leading-relaxed text-dark">&ldquo;{t.quote}&rdquo;</p>
+                <div className="mt-8 flex items-center gap-4">
+                  <div className="relative h-12 w-12 overflow-hidden rounded-full bg-sage ring-2 ring-sage">
+                    <Image
+                      src={t.image}
+                      alt={t.name}
+                      width={48}
+                      height={48}
+                      className="h-full w-full object-cover"
+                    />
+                  </div>
+                  <div>
+                    <p className="font-heading text-sm font-semibold text-navy">{t.name}</p>
+                    <p className="text-xs text-muted">{t.location}</p>
+                    <p className="text-xs text-teal">{t.treatment}</p>
+                  </div>
                 </div>
               </div>
-            </div>
+            </Reveal>
           ))}
         </div>
       </div>
