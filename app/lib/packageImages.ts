@@ -10,7 +10,7 @@ export const packageImages: Record<string, string> = {
   "ivf-fertility":
     "https://images.unsplash.com/photo-1559757175-5700dde675bc?auto=format&fit=crop&q=80&w=800",
   "dental-implants":
-    "https://images.unsplash.com/photo-1606811841689-23dfddce3a95?auto=format&fit=crop&q=80&w=800",
+    "https://images.unsplash.com/photo-1770321119305-f191c09c5801?auto=format&fit=crop&q=80&w=800",
 };
 
 const defaultImage =

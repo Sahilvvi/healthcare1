@@ -17,7 +17,7 @@ export async function addHospital(formData: FormData) {
   const country = (formData.get("country") as string)?.trim() || "India";
   const beds = (formData.get("beds") as string)?.trim();
   const about = (formData.get("about") as string)?.trim();
-  const image = (formData.get("image") as string)?.trim() || "https://images.unsplash.com/photo-1587351021759-3e566b08af32?auto=format&fit=crop&q=80&w=800";
+  const image = (formData.get("image") as string)?.trim() || "https://images.unsplash.com/photo-1764885517559-b427ca4bd9c1?auto=format&fit=crop&q=80&w=800";
 
   if (!name || !city) {
     return { error: "Name and city are required." };
