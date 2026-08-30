@@ -92,7 +92,7 @@ export default function SignUpPage() {
       <div className="mx-auto grid min-h-[calc(100vh-64px)] max-w-7xl lg:grid-cols-2">
         <div className="relative hidden bg-navy lg:block">
           <Image
-            src="https://images.unsplash.com/photo-1576091160403-2204935c1fd6?auto=format&fit=crop&q=80&w=1200"
+            src="https://images.unsplash.com/photo-1758691462126-2ee47c8bf9e7?auto=format&fit=crop&q=80&w=1200"
             alt="Patient and care coordinator reviewing options"
             fill
             className="object-cover opacity-40"

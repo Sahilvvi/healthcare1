@@ -9,8 +9,8 @@ const categories = [
   { title: "Neuro", slug: "neurology", image: "https://images.unsplash.com/photo-1551601651-2a8555f1a136?auto=format&fit=crop&q=80&w=800" },
   { title: "Transplant", slug: "transplants", image: "https://images.unsplash.com/photo-1581056771107-24ca5f033842?auto=format&fit=crop&q=80&w=800" },
   { title: "Women's Health", slug: "womens-health", image: "https://images.unsplash.com/photo-1559757175-5700dde675bc?auto=format&fit=crop&q=80&w=800" },
-  { title: "Dental", slug: "dental", image: "https://images.unsplash.com/photo-1606811841689-23dfddce3a95?auto=format&fit=crop&q=80&w=800" },
-  { title: "Wellness", slug: "wellness", image: "https://images.unsplash.com/photo-1544367563-12123d8965cd?auto=format&fit=crop&q=80&w=800" },
+  { title: "Dental", slug: "dental", image: "https://images.unsplash.com/photo-1770321119305-f191c09c5801?auto=format&fit=crop&q=80&w=800" },
+  { title: "Wellness", slug: "wellness", image: "https://images.unsplash.com/photo-1767611098846-05ed978b17ce?auto=format&fit=crop&q=80&w=800" },
 ];
 
 export function TreatmentCategories() {

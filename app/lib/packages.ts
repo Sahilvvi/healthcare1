@@ -122,7 +122,7 @@ export const packages: Package[] = [
     description:
       "Dental implant package covering assessment, implant placement and crown fitting. Suitable for patients looking for quality dental restoration with short travel stays.",
     hospitals: ["Apollo Chennai"],
-    image: "https://images.unsplash.com/photo-1606811841689-23dfddce3a95?auto=format&fit=crop&q=80&w=800",
+    image: "https://images.unsplash.com/photo-1770321119305-f191c09c5801?auto=format&fit=crop&q=80&w=800",
     includes: [
       "Dental assessment",
       "Implant placement",
