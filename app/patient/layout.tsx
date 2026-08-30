@@ -2,19 +2,6 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/app/lib/supabase/server";
 import { Sidebar } from "@/app/components/Sidebar";
 import { isPatient } from "@/app/lib/roles";
-import {
-  LayoutDashboard,
-  Stethoscope,
-  Calendar,
-  FileText,
-  Pill,
-  Plane,
-  MessageSquare,
-  CreditCard,
-  HeadphonesIcon,
-  Settings,
-  ClipboardList,
-} from "lucide-react";
 
 export const metadata = {
   title: "Patient Dashboard | Dadashri Vishwa Healthcare",
@@ -43,27 +30,27 @@ export default async function PatientLayout({
   const nav = [
     {
       links: [
-        { href: "/patient/dashboard", label: "Dashboard", icon: LayoutDashboard },
-        { href: "/patient/care-plan", label: "Care Plan", icon: ClipboardList },
-        { href: "/patient/appointments", label: "Appointments", icon: Calendar },
+        { href: "/patient/dashboard", label: "Dashboard", icon: "LayoutDashboard" },
+        { href: "/patient/care-plan", label: "Care Plan", icon: "ClipboardList" },
+        { href: "/patient/appointments", label: "Appointments", icon: "Calendar" },
       ],
     },
     {
       group: "Records",
       links: [
-        { href: "/patient/medical-records", label: "Medical Records", icon: FileText },
-        { href: "/patient/prescriptions", label: "Prescriptions", icon: Pill },
-        { href: "/patient/medicines", label: "Medicines", icon: Stethoscope },
-        { href: "/patient/travel", label: "Travel", icon: Plane },
-        { href: "/patient/messages", label: "Messages", icon: MessageSquare },
+        { href: "/patient/medical-records", label: "Medical Records", icon: "FileText" },
+        { href: "/patient/prescriptions", label: "Prescriptions", icon: "Pill" },
+        { href: "/patient/medicines", label: "Medicines", icon: "Stethoscope" },
+        { href: "/patient/travel", label: "Travel", icon: "Plane" },
+        { href: "/patient/messages", label: "Messages", icon: "MessageSquare" },
       ],
     },
     {
       group: "Account",
       links: [
-        { href: "/patient/billing", label: "Billing", icon: CreditCard },
-        { href: "/patient/support", label: "Support", icon: HeadphonesIcon },
-        { href: "/patient/settings", label: "Settings", icon: Settings },
+        { href: "/patient/billing", label: "Billing", icon: "CreditCard" },
+        { href: "/patient/support", label: "Support", icon: "HeadphonesIcon" },
+        { href: "/patient/settings", label: "Settings", icon: "Settings" },
       ],
     },
   ];

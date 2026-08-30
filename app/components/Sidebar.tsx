@@ -3,13 +3,52 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import type { LucideIcon } from "lucide-react";
+import {
+  Menu,
+  X,
+  LayoutDashboard,
+  ClipboardList,
+  Calendar,
+  FileText,
+  Pill,
+  Stethoscope,
+  Plane,
+  MessageSquare,
+  CreditCard,
+  HeadphonesIcon,
+  Settings,
+  Users,
+  Video,
+  Repeat,
+  Banknote,
+  BarChart3,
+} from "lucide-react";
 import { SignOutButton } from "./SignOutButton";
-import { Menu, X } from "lucide-react";
+
+const iconMap: Record<string, LucideIcon> = {
+  LayoutDashboard,
+  ClipboardList,
+  Calendar,
+  FileText,
+  Pill,
+  Stethoscope,
+  Plane,
+  MessageSquare,
+  CreditCard,
+  HeadphonesIcon,
+  Settings,
+  Users,
+  Video,
+  Repeat,
+  Banknote,
+  BarChart3,
+};
 
 export type NavItem = {
   href: string;
   label: string;
-  icon: React.ComponentType<{ className?: string }>;
+  icon: string;
 };
 
 export function Sidebar({
@@ -86,7 +125,7 @@ export function Sidebar({
                 )}
                 <ul className="space-y-1">
                   {section.links.map((item) => {
-                    const Icon = item.icon;
+                    const Icon = iconMap[item.icon] ?? LayoutDashboard;
                     const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
                     return (
                       <li key={item.href}>
