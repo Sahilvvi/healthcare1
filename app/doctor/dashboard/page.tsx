@@ -11,7 +11,7 @@ import { Sparkline } from "@/app/components/ui/Sparkline";
 import { Reveal } from "@/app/components/Reveal";
 import { buildActivityFeed } from "@/app/lib/activity";
 import { isDoctor } from "@/app/lib/roles";
-import { Calendar, FileText, Pill, Users, TrendingUp } from "lucide-react";
+import { Calendar, FileText, Pill, Users, TrendingUp, Banknote, Video, Clock } from "lucide-react";
 import type { Appointment, Case, Prescription, Transaction } from "@/app/lib/types";
 
 function formatTime(ts?: string | null) {
@@ -114,14 +114,14 @@ export default async function DoctorDashboard() {
 
       <Reveal delay={100}>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <StatCard label="Today's consultations" value={todayAppointments.length} href="/doctor/appointments" />
-          <StatCard label="Pending cases" value={cases.length} href="/doctor/patients" />
-          <StatCard label="Completed appointments" value={completed} href="/doctor/appointments" />
-          <StatCard label="Total earnings" value={formatCurrency(totalEarnings)} href="/doctor/earnings" />
-          <StatCard label="My patients" value={uniquePatients} href="/doctor/patients" />
-          <StatCard label="Prescriptions" value={prescriptions.length} href="/doctor/prescriptions" />
-          <StatCard label="Upcoming" value={upcoming.length} href="/doctor/appointments" />
-          <StatCard label="Profile" value="View" href="/doctor/settings" subtext="Update availability" />
+          <StatCard label="Today's consultations" value={todayAppointments.length} href="/doctor/appointments" icon={Calendar} />
+          <StatCard label="Pending cases" value={cases.length} href="/doctor/patients" icon={FileText} />
+          <StatCard label="Completed appointments" value={completed} href="/doctor/appointments" icon={Clock} />
+          <StatCard label="Total earnings" value={formatCurrency(totalEarnings)} href="/doctor/earnings" icon={Banknote} />
+          <StatCard label="My patients" value={uniquePatients} href="/doctor/patients" icon={Users} />
+          <StatCard label="Prescriptions" value={prescriptions.length} href="/doctor/prescriptions" icon={Pill} />
+          <StatCard label="Upcoming" value={upcoming.length} href="/doctor/appointments" icon={Video} />
+          <StatCard label="Profile" value="View" href="/doctor/settings" subtext="Update availability" icon={TrendingUp} />
         </div>
       </Reveal>
 

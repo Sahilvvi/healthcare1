@@ -9,7 +9,7 @@ import { CareJourney } from "@/app/components/dashboard/CareJourney";
 import { Badge } from "@/app/components/dashboard/Badge";
 import { Reveal } from "@/app/components/Reveal";
 import { buildActivityFeed } from "@/app/lib/activity";
-import { Plus, Calendar, Upload, MessageSquare, Pill, Plane, Headphones, ChevronRight } from "lucide-react";
+import { Plus, Calendar, Upload, MessageSquare, Pill, Plane, Headphones, ChevronRight, ClipboardList, FileText, CreditCard, Package as PackageIcon } from "lucide-react";
 import type {
   Case,
   CaseTimeline,
@@ -177,14 +177,14 @@ export default async function PatientDashboard() {
         <>
           <Reveal delay={100}>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              <StatCard label="Active cases" value={cases.length} subtext="Current and previous cases" href="/patient/care-plan" />
-              <StatCard label="Upcoming" value={appointments.filter((a) => a.scheduled_at && new Date(a.scheduled_at) >= new Date()).length} subtext="Scheduled appointments" href="/patient/appointments" />
-              <StatCard label="Documents" value={documents.length} subtext="Reports and files" href="/patient/medical-records" />
-              <StatCard label="Prescriptions" value={prescriptions.length} subtext="Active and past" href="/patient/prescriptions" />
-              <StatCard label="Open tickets" value={openTickets} subtext="Support requests" href="/patient/support" />
-              <StatCard label="Total paid" value={formatCurrency(totalPaid, "USD")} subtext="Payments so far" href="/patient/billing" />
-              <StatCard label="Medicine orders" value={orders.length} subtext="In transit and delivered" href="/patient/medicines" />
-              <StatCard label="Messages" value={messages.length} subtext="Recent updates" href="/patient/messages" />
+              <StatCard label="Active cases" value={cases.length} subtext="Current and previous cases" href="/patient/care-plan" icon={ClipboardList} />
+              <StatCard label="Upcoming" value={appointments.filter((a) => a.scheduled_at && new Date(a.scheduled_at) >= new Date()).length} subtext="Scheduled appointments" href="/patient/appointments" icon={Calendar} />
+              <StatCard label="Documents" value={documents.length} subtext="Reports and files" href="/patient/medical-records" icon={FileText} />
+              <StatCard label="Prescriptions" value={prescriptions.length} subtext="Active and past" href="/patient/prescriptions" icon={Pill} />
+              <StatCard label="Open tickets" value={openTickets} subtext="Support requests" href="/patient/support" icon={Headphones} />
+              <StatCard label="Total paid" value={formatCurrency(totalPaid, "USD")} subtext="Payments so far" href="/patient/billing" icon={CreditCard} />
+              <StatCard label="Medicine orders" value={orders.length} subtext="In transit and delivered" href="/patient/medicines" icon={PackageIcon} />
+              <StatCard label="Messages" value={messages.length} subtext="Recent updates" href="/patient/messages" icon={MessageSquare} />
             </div>
           </Reveal>
 

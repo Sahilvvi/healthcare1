@@ -10,7 +10,7 @@ import { Sparkline } from "@/app/components/ui/Sparkline";
 import { Reveal } from "@/app/components/Reveal";
 import { buildActivityFeed } from "@/app/lib/activity";
 import { isAdmin } from "@/app/lib/roles";
-import { Banknote, Users, Stethoscope, Building2, Package, Calendar, ShoppingCart, HeadphonesIcon } from "lucide-react";
+import { Banknote, Users, Stethoscope, Building2, Package, Calendar, ShoppingCart, HeadphonesIcon, Briefcase, TrendingUp, Wallet } from "lucide-react";
 import type { Case, Profile, Transaction } from "@/app/lib/types";
 
 function formatDate(ts: string) {
@@ -94,14 +94,14 @@ export default async function AdminDashboard() {
 
       <Reveal delay={100}>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <StatCard label="International patients" value={patientCount ?? 0} href="/admin/patients" />
-          <StatCard label="Active cases" value={activeCaseCount ?? 0} href="/admin/patients" />
-          <StatCard label="Today's consultations" value={todayConsultCount ?? 0} href="/admin/appointments" />
-          <StatCard label="Medicine orders" value={orderCount ?? 0} href="/admin/orders" />
-          <StatCard label="Open tickets" value={ticketCount ?? 0} href="/admin/support" />
-          <StatCard label="Doctors" value={doctorCount ?? 0} href="/admin/doctors" />
-          <StatCard label="Hospitals" value={hospitalCount ?? 0} href="/admin/hospitals" />
-          <StatCard label="Packages" value={packageCount ?? 0} href="/admin/packages" />
+          <StatCard label="International patients" value={patientCount ?? 0} href="/admin/patients" icon={Users} />
+          <StatCard label="Active cases" value={activeCaseCount ?? 0} href="/admin/patients" icon={Briefcase} />
+          <StatCard label="Today's consultations" value={todayConsultCount ?? 0} href="/admin/appointments" icon={Calendar} />
+          <StatCard label="Medicine orders" value={orderCount ?? 0} href="/admin/orders" icon={ShoppingCart} />
+          <StatCard label="Open tickets" value={ticketCount ?? 0} href="/admin/support" icon={HeadphonesIcon} />
+          <StatCard label="Doctors" value={doctorCount ?? 0} href="/admin/doctors" icon={Stethoscope} />
+          <StatCard label="Hospitals" value={hospitalCount ?? 0} href="/admin/hospitals" icon={Building2} />
+          <StatCard label="Packages" value={packageCount ?? 0} href="/admin/packages" icon={Package} />
         </div>
       </Reveal>
 
@@ -109,11 +109,11 @@ export default async function AdminDashboard() {
         <div className="rounded-2xl border border-border bg-white p-6 shadow-sm">
           <h2 className="mb-4 font-heading text-lg font-semibold text-navy">Financial summary</h2>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-            <StatCard label="Total revenue" value={formatAmount(revenue)} changeType="positive" href="/admin/finance" />
-            <StatCard label="Costs" value={formatAmount(costs)} changeType="negative" href="/admin/finance" />
-            <StatCard label="Refunds" value={formatAmount(refunds)} href="/admin/finance" />
-            <StatCard label="Net profit" value={formatAmount(netProfit)} changeType={netProfit >= 0 ? "positive" : "negative"} href="/admin/finance" />
-            <StatCard label="Transactions" value={transactions.length} href="/admin/finance" />
+            <StatCard label="Total revenue" value={formatAmount(revenue)} changeType="positive" href="/admin/finance" icon={TrendingUp} />
+            <StatCard label="Costs" value={formatAmount(costs)} changeType="negative" href="/admin/finance" icon={Banknote} />
+            <StatCard label="Refunds" value={formatAmount(refunds)} href="/admin/finance" icon={Wallet} />
+            <StatCard label="Net profit" value={formatAmount(netProfit)} changeType={netProfit >= 0 ? "positive" : "negative"} href="/admin/finance" icon={TrendingUp} />
+            <StatCard label="Transactions" value={transactions.length} href="/admin/finance" icon={Banknote} />
           </div>
         </div>
       </Reveal>

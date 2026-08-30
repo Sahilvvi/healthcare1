@@ -88,7 +88,7 @@ export default function SignUpPage() {
   };
 
   return (
-    <section className="relative min-h-[calc(100vh-64px)] bg-warm-white py-12 lg:py-0">
+    <section className="relative min-h-[calc(100vh-64px)] bg-warm-white bg-dot-pattern py-12 lg:py-0">
       <div className="mx-auto grid min-h-[calc(100vh-64px)] max-w-7xl lg:grid-cols-2">
         <div className="relative hidden bg-navy lg:block">
           <Image
@@ -108,8 +108,8 @@ export default function SignUpPage() {
                 Create your secure account and get a dedicated coordinator, a personalized treatment plan, and direct access to verified doctors.
               </p>
               <div className="mt-8 grid grid-cols-2 gap-4">
-                {benefits.map((b) => (
-                  <div key={b.text} className="flex items-center gap-3 rounded-xl bg-white/10 p-3">
+                {benefits.map((b, i) => (
+                  <div key={b.text} className="flex items-center gap-3 rounded-xl bg-white/10 p-3 animate-fade-up" style={{ animationDelay: `${i * 120}ms`, opacity: 0 }}>
                     <b.icon className="h-5 w-5 text-teal" />
                     <span className="text-sm font-medium">{b.text}</span>
                   </div>
@@ -120,7 +120,7 @@ export default function SignUpPage() {
         </div>
 
         <div className="flex items-center justify-center px-6 py-12 lg:px-16">
-          <div className="w-full max-w-md animate-scale-in">
+          <div className="w-full max-w-md animate-scale-in rounded-3xl bg-white p-8 shadow-xl ring-1 ring-navy/5">
             <div className="mb-8 text-center lg:text-left">
               <p className="text-sm font-semibold uppercase tracking-widest text-teal">New patient</p>
               <h1 className="mt-2 font-heading text-2xl font-semibold text-navy md:text-3xl">

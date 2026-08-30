@@ -55,7 +55,7 @@ export default function LoginPage() {
   };
 
   return (
-    <section className="relative min-h-[calc(100vh-64px)] bg-warm-white py-12 lg:py-0">
+    <section className="relative min-h-[calc(100vh-64px)] bg-warm-white bg-dot-pattern py-12 lg:py-0">
       <div className="mx-auto grid min-h-[calc(100vh-64px)] max-w-7xl lg:grid-cols-2">
         <div className="relative hidden bg-navy lg:block">
           <Image
@@ -75,9 +75,9 @@ export default function LoginPage() {
                 Sign in to view your case, appointments, treatment plan and travel details — all in one secure place.
               </p>
               <div className="mt-8 space-y-4">
-                {highlights.map((h) => (
-                  <div key={h.text} className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10">
+                {highlights.map((h, i) => (
+                  <div key={h.text} className="flex items-center gap-3 animate-fade-up" style={{ animationDelay: `${i * 120}ms`, opacity: 0 }}>
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 backdrop-blur-sm">
                       <h.icon className="h-5 w-5 text-teal" />
                     </div>
                     <span className="text-sm font-medium">{h.text}</span>
@@ -89,7 +89,7 @@ export default function LoginPage() {
         </div>
 
         <div className="flex items-center justify-center px-6 py-12 lg:px-16">
-          <div className="w-full max-w-md animate-scale-in">
+          <div className="w-full max-w-md animate-scale-in rounded-3xl bg-white p-8 shadow-xl ring-1 ring-navy/5">
             <div className="mb-8 text-center lg:text-left">
               <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-sage text-teal lg:mx-0">
                 <Sparkles className="h-6 w-6" />

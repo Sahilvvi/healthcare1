@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import { Check, ArrowRight, Sparkles } from "lucide-react";
 import type { Package } from "../lib/types";
 
 const fallbackPackages: Package[] = [
@@ -50,27 +51,29 @@ const packageImages: Record<string, string> = {
 export function TreatmentPackages({ packages }: { packages?: Package[] }) {
   const displayPackages = packages?.length ? packages : fallbackPackages;
   return (
-    <section id="packages" className="bg-warm-white py-20 lg:py-28">
+    <section id="packages" className="bg-sage/20 py-24 lg:py-32">
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
-        <div className="mb-12 flex flex-col justify-between gap-6 md:flex-row md:items-end">
+        <div className="mb-14 flex flex-col justify-between gap-6 md:flex-row md:items-end">
           <div className="max-w-2xl">
             <p className="text-sm font-semibold uppercase tracking-widest text-teal">Transparent pricing</p>
-            <h2 className="mt-3 font-heading text-3xl font-semibold text-navy md:text-4xl">
+            <h2 className="mt-3 font-heading text-4xl font-semibold text-navy md:text-5xl">
               Treatment packages
             </h2>
-            <p className="mt-4 text-muted">
+            <p className="mt-4 text-lg text-muted">
               All-inclusive estimates so you can plan your medical travel with confidence.
             </p>
           </div>
-          <Link href="/packages" className="text-base font-medium text-teal hover:text-navy">
-            View all packages →
+          <Link href="/packages" className="group inline-flex items-center gap-1 text-base font-medium text-teal hover:text-navy">
+            View all packages <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
           </Link>
         </div>
         <div className="grid gap-6 lg:grid-cols-3">
-          {displayPackages.map((pkg) => (
+          {displayPackages.map((pkg, i) => (
             <div
               key={pkg.name}
-              className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md"
+              className={`group flex flex-col overflow-hidden rounded-2xl border border-border bg-white shadow-sm card-hover ${
+                i === 1 ? "ring-2 ring-teal/20 lg:-mt-4 lg:mb-4" : ""
+              }`}
             >
               <div className="relative aspect-[16/9] overflow-hidden">
                 <Image
@@ -79,7 +82,12 @@ export function TreatmentPackages({ packages }: { packages?: Package[] }) {
                   fill
                   className="object-cover transition-transform duration-700 group-hover:scale-105"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-navy/50 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-navy/60 to-transparent" />
+                {i === 1 && (
+                  <span className="absolute left-4 top-4 inline-flex items-center gap-1 rounded-full bg-teal px-3 py-1 text-xs font-semibold text-white">
+                    <Sparkles className="h-3 w-3" /> Most popular
+                  </span>
+                )}
                 <span className="absolute right-4 top-4 rounded-full bg-white/90 px-3 py-1 text-xs font-medium text-navy backdrop-blur">
                   {pkg.stay}
                 </span>
@@ -96,14 +104,14 @@ export function TreatmentPackages({ packages }: { packages?: Package[] }) {
                 <ul className="mt-4 flex-1 space-y-2">
                   {pkg.includes.map((item) => (
                     <li key={item} className="flex items-start gap-2 text-sm">
-                      <CheckIcon />
+                      <Check className="mt-0.5 h-4 w-4 shrink-0 text-teal" />
                       <span className="text-dark">{item}</span>
                     </li>
                   ))}
                 </ul>
                 <Link
                   href={`/packages/${pkg.slug}`}
-                  className="mt-6 block rounded-lg border border-navy bg-navy px-5 py-3 text-center text-sm font-medium text-white transition-colors hover:bg-teal"
+                  className="btn-primary mt-6 block rounded-xl border border-navy bg-navy px-5 py-3 text-center text-sm font-medium text-white transition-colors hover:bg-teal"
                 >
                   View Treatment Plan
                 </Link>
@@ -113,13 +121,5 @@ export function TreatmentPackages({ packages }: { packages?: Package[] }) {
         </div>
       </div>
     </section>
-  );
-}
-
-function CheckIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#0F766E" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M20 6 9 17l-5-5" />
-    </svg>
   );
 }
