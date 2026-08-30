@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/app/lib/supabase/server";
 import { supabaseAdmin } from "@/app/lib/supabase/admin";
 import { StatCard } from "@/app/components/dashboard/StatCard";
+import { QuickLink } from "@/app/components/dashboard/QuickLink";
 import { SectionHeader } from "@/app/components/dashboard/SectionHeader";
 import { Badge } from "@/app/components/dashboard/Badge";
 import { ActivityFeed } from "@/app/components/dashboard/ActivityFeed";
@@ -219,10 +220,10 @@ export default async function DoctorDashboard() {
                 </div>
               </div>
               <div className="mt-5 grid grid-cols-2 gap-3">
-                <Link href="/doctor/patients" className="flex items-center gap-2 rounded-xl border border-border bg-warm-white px-3 py-2.5 text-sm font-medium text-dark transition-colors hover:border-navy hover:text-navy"><Users className="h-4 w-4 text-teal" /> Patients</Link>
-                <Link href="/doctor/prescriptions" className="flex items-center gap-2 rounded-xl border border-border bg-warm-white px-3 py-2.5 text-sm font-medium text-dark transition-colors hover:border-navy hover:text-navy"><Pill className="h-4 w-4 text-teal" /> Prescriptions</Link>
-                <Link href="/doctor/case-notes" className="flex items-center gap-2 rounded-xl border border-border bg-warm-white px-3 py-2.5 text-sm font-medium text-dark transition-colors hover:border-navy hover:text-navy"><FileText className="h-4 w-4 text-teal" /> Notes</Link>
-                <Link href="/doctor/reports" className="flex items-center gap-2 rounded-xl border border-border bg-warm-white px-3 py-2.5 text-sm font-medium text-dark transition-colors hover:border-navy hover:text-navy"><TrendingUp className="h-4 w-4 text-teal" /> Reports</Link>
+                <QuickLink href="/doctor/patients" icon={Users} label="Patients" />
+                <QuickLink href="/doctor/prescriptions" icon={Pill} label="Prescriptions" />
+                <QuickLink href="/doctor/case-notes" icon={FileText} label="Notes" />
+                <QuickLink href="/doctor/reports" icon={TrendingUp} label="Reports" />
               </div>
             </div>
           </Reveal>

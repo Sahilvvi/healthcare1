@@ -3,11 +3,27 @@ import { createClient } from "@/app/lib/supabase/server";
 import { supabaseAdmin } from "@/app/lib/supabase/admin";
 import { SectionHeader } from "@/app/components/dashboard/SectionHeader";
 import { StatCard } from "@/app/components/dashboard/StatCard";
+import { Sparkline } from "@/app/components/ui/Sparkline";
 import { isAdmin } from "@/app/lib/roles";
 import type { Appointment, Case, Transaction } from "@/app/lib/types";
+import { Users, Stethoscope, CalendarDays, TrendingUp, Banknote, Repeat } from "lucide-react";
 
 function formatAmount(amount: number) {
   return `USD ${amount.toLocaleString("en-IN", { maximumFractionDigits: 0 })}`;
+}
+
+function monthlySeries(cases: Case[], transactions: Transaction[]) {
+  const months: string[] = [];
+  const now = new Date();
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    months.push(d.toISOString().slice(0, 7));
+  }
+  return months.map((m) => ({
+    month: new Date(m + "-01").toLocaleString("en-IN", { month: "short" }),
+    cases: cases.filter((c) => c.created_at.startsWith(m)).length,
+    income: transactions.filter((t) => t.type === "income" && t.created_at.startsWith(m)).reduce((s, t) => s + Number(t.amount), 0),
+  }));
 }
 
 export default async function AdminReportsPage() {
@@ -43,37 +59,55 @@ export default async function AdminReportsPage() {
   const statusCounts: Record<string, number> = {};
   cases.forEach((c) => { statusCounts[c.status] = (statusCounts[c.status] || 0) + 1; });
 
-  const byMonth: Record<string, { income: number; cases: number }> = {};
-  transactions.forEach((t) => {
-    const key = new Date(t.created_at).toLocaleString("en-IN", { month: "short", year: "numeric" });
-    if (!byMonth[key]) byMonth[key] = { income: 0, cases: 0 };
-    if (t.type === "income") byMonth[key].income += Number(t.amount);
-  });
-  cases.forEach((c) => {
-    const key = new Date(c.created_at).toLocaleString("en-IN", { month: "short", year: "numeric" });
-    if (!byMonth[key]) byMonth[key] = { income: 0, cases: 0 };
-    byMonth[key].cases += 1;
-  });
-
   const completionRate = appointments.length ? Math.round((appointments.filter((a) => a.status === "COMPLETED").length / appointments.length) * 100) : 0;
+
+  const series = monthlySeries(cases, transactions);
+  const casesChart = series.map((s) => s.cases);
+  const incomeChart = series.map((s) => s.income);
 
   return (
     <div className="space-y-8">
       <SectionHeader title="Reports" subtitle="Business analytics, trends and operational KPIs" />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard label="Total patients" value={patientCount ?? 0} />
-        <StatCard label="Doctors" value={doctorCount ?? 0} />
-        <StatCard label="Appointments" value={appointments.length} />
-        <StatCard label="Completion rate" value={`${completionRate}%`} />
+        <StatCard label="Total patients" value={patientCount ?? 0} icon={Users} />
+        <StatCard label="Doctors" value={doctorCount ?? 0} icon={Stethoscope} />
+        <StatCard label="Appointments" value={appointments.length} icon={CalendarDays} />
+        <StatCard label="Completion rate" value={`${completionRate}%`} icon={TrendingUp} />
+        <StatCard label="Revenue" value={formatAmount(revenue)} icon={Banknote} />
+        <StatCard label="Refunds" value={formatAmount(refunds)} icon={Repeat} />
+        <StatCard label="Net profit" value={formatAmount(net)} icon={TrendingUp} />
+        <StatCard label="Cases" value={cases.length} icon={CalendarDays} />
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <div className="rounded-xl border border-border bg-white p-6 shadow-sm">
+        <div className="rounded-2xl border border-border bg-white p-6 shadow-sm">
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="font-heading text-lg font-semibold text-navy">New cases per month</h2>
+            <span className="text-sm text-muted">Last 6 months</span>
+          </div>
+          <div className="h-40">
+            <Sparkline data={casesChart} color="#0F766E" height={140} />
+          </div>
+        </div>
+
+        <div className="rounded-2xl border border-border bg-white p-6 shadow-sm">
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="font-heading text-lg font-semibold text-navy">Monthly revenue</h2>
+            <span className="text-sm text-muted">Last 6 months</span>
+          </div>
+          <div className="h-40">
+            <Sparkline data={incomeChart} color="#102A43" height={140} />
+          </div>
+        </div>
+      </div>
+
+      <div className="grid gap-6 lg:grid-cols-2">
+        <div className="rounded-2xl border border-border bg-white p-6 shadow-sm">
           <h2 className="font-heading text-lg font-semibold text-navy">Case stages</h2>
           <div className="mt-4 space-y-3">
             {Object.entries(statusCounts).sort((a, b) => b[1] - a[1]).map(([status, count]) => (
-              <div key={status} className="flex items-center justify-between rounded-lg bg-warm-white px-4 py-3 text-sm">
+              <div key={status} className="flex items-center justify-between rounded-xl bg-warm-white px-4 py-3 text-sm">
                 <span className="text-dark">{status}</span>
                 <span className="font-semibold text-navy">{count}</span>
               </div>
@@ -82,43 +116,25 @@ export default async function AdminReportsPage() {
           </div>
         </div>
 
-        <div className="rounded-xl border border-border bg-white p-6 shadow-sm">
-          <h2 className="font-heading text-lg font-semibold text-navy">Financial summary</h2>
-          <div className="mt-4 space-y-3">
-            <div className="flex items-center justify-between rounded-lg bg-warm-white px-4 py-3 text-sm">
-              <span className="text-dark">Revenue</span>
-              <span className="font-semibold text-navy">{formatAmount(revenue)}</span>
-            </div>
-            <div className="flex items-center justify-between rounded-lg bg-warm-white px-4 py-3 text-sm">
-              <span className="text-dark">Refunds</span>
-              <span className="font-semibold text-navy">{formatAmount(refunds)}</span>
-            </div>
-            <div className="flex items-center justify-between rounded-lg bg-warm-white px-4 py-3 text-sm">
-              <span className="text-dark">Net profit</span>
-              <span className="font-semibold text-navy">{formatAmount(net)}</span>
-            </div>
+        <div className="rounded-2xl border border-border bg-white p-6 shadow-sm">
+          <h2 className="font-heading text-lg font-semibold text-navy">Monthly activity</h2>
+          <div className="mt-4 overflow-hidden rounded-xl border border-border">
+            <table className="w-full text-left text-sm">
+              <thead className="border-b border-border bg-warm-white text-muted">
+                <tr><th className="px-5 py-3 font-medium">Month</th><th className="px-5 py-3 font-medium">New cases</th><th className="px-5 py-3 font-medium text-right">Income</th></tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {series.slice().reverse().map((s) => (
+                  <tr key={s.month}>
+                    <td className="px-5 py-4 text-dark">{s.month}</td>
+                    <td className="px-5 py-4 text-muted">{s.cases}</td>
+                    <td className="px-5 py-4 text-right font-medium text-navy">{formatAmount(s.income)}</td>
+                  </tr>
+                ))}
+                {series.length === 0 && <tr><td className="px-5 py-4 text-muted" colSpan={3}>No activity yet.</td></tr>}
+              </tbody>
+            </table>
           </div>
-        </div>
-      </div>
-
-      <div className="rounded-xl border border-border bg-white p-6 shadow-sm">
-        <h2 className="font-heading text-lg font-semibold text-navy">Monthly activity</h2>
-        <div className="mt-4 overflow-hidden rounded-lg border border-border">
-          <table className="w-full text-left text-sm">
-            <thead className="border-b border-border bg-warm-white text-muted">
-              <tr><th className="px-5 py-3 font-medium">Month</th><th className="px-5 py-3 font-medium">New cases</th><th className="px-5 py-3 font-medium text-right">Income</th></tr>
-            </thead>
-            <tbody className="divide-y divide-border">
-              {Object.entries(byMonth).sort().reverse().map(([month, vals]) => (
-                <tr key={month}>
-                  <td className="px-5 py-4 text-dark">{month}</td>
-                  <td className="px-5 py-4 text-muted">{vals.cases}</td>
-                  <td className="px-5 py-4 text-right font-medium text-navy">{formatAmount(vals.income)}</td>
-                </tr>
-              ))}
-              {Object.keys(byMonth).length === 0 && <tr><td className="px-5 py-4 text-muted" colSpan={3}>No activity yet.</td></tr>}
-            </tbody>
-          </table>
         </div>
       </div>
     </div>

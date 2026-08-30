@@ -23,19 +23,21 @@ export function AddTransactionForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-      {status?.error && <p className="col-span-full text-sm text-red-600">{status.error}</p>}
-      {status?.ok && <p className="col-span-full text-sm text-teal">Transaction recorded.</p>}
-      <input name="description" type="text" required placeholder="Description" className="rounded-md border border-border bg-warm-white px-4 py-2 text-sm outline-none focus:border-teal" />
-      <input name="category" type="text" placeholder="Category" className="rounded-md border border-border bg-warm-white px-4 py-2 text-sm outline-none focus:border-teal" />
-      <select name="type" className="rounded-md border border-border bg-warm-white px-4 py-2 text-sm outline-none focus:border-teal">
-        <option value="income">Income</option>
-        <option value="cost">Cost</option>
-        <option value="refund">Refund</option>
-      </select>
-      <input name="amount" type="number" step="0.01" required placeholder="Amount" className="rounded-md border border-border bg-warm-white px-4 py-2 text-sm outline-none focus:border-teal" />
-      <button type="submit" disabled={loading} className="rounded-md bg-navy px-5 py-2 text-sm font-medium text-white transition-colors hover:bg-teal disabled:opacity-50">
-        {loading ? "Saving..." : "Record"}
+    <form onSubmit={handleSubmit} className="mt-5 space-y-4">
+      {status?.error && <p className="text-sm text-red-600">{status.error}</p>}
+      {status?.ok && <p className="text-sm text-teal">Transaction recorded.</p>}
+      <div className="grid gap-4 sm:grid-cols-2">
+        <input name="description" type="text" required placeholder="Description" className="w-full rounded-xl border border-border bg-warm-white px-4 py-2.5 text-sm outline-none transition-colors focus:border-teal focus:ring-1 focus:ring-teal" />
+        <input name="category" type="text" placeholder="Category" className="w-full rounded-xl border border-border bg-warm-white px-4 py-2.5 text-sm outline-none transition-colors focus:border-teal focus:ring-1 focus:ring-teal" />
+        <select name="type" className="w-full rounded-xl border border-border bg-warm-white px-4 py-2.5 text-sm outline-none transition-colors focus:border-teal focus:ring-1 focus:ring-teal">
+          <option value="income">Income</option>
+          <option value="cost">Cost</option>
+          <option value="refund">Refund</option>
+        </select>
+        <input name="amount" type="number" step="0.01" required placeholder="Amount" className="w-full rounded-xl border border-border bg-warm-white px-4 py-2.5 text-sm outline-none transition-colors focus:border-teal focus:ring-1 focus:ring-teal" />
+      </div>
+      <button type="submit" disabled={loading} className="w-full rounded-xl bg-navy py-2.5 text-sm font-medium text-white transition-colors hover:bg-teal disabled:opacity-50">
+        {loading ? "Saving..." : "Record transaction"}
       </button>
     </form>
   );
