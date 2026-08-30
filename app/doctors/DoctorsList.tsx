@@ -8,21 +8,39 @@ import type { Doctor } from "@/app/lib/types";
 
 const filters = ["All", "Cardiology", "Orthopedics", "Oncology", "Neurology"];
 
+const specialtyAliases: Record<string, string> = {
+  cardiology: "Cardiology",
+  orthopedics: "Orthopedics",
+  oncology: "Oncology",
+  neurology: "Neurology",
+  "cancer-care": "Oncology",
+  "women-health": "Neurology",
+  "womens-health": "Neurology",
+  transplants: "Cardiology",
+  dental: "Cardiology",
+  wellness: "Neurology",
+};
+
+function normalizeFilter(value?: string | null) {
+  if (!value) return "All";
+  const normalized = specialtyAliases[value.toLowerCase()] || (filters.includes(value) ? value : null);
+  return normalized || "All";
+}
+
 export default function DoctorsList({ doctors, initialFilter = "All" }: { doctors: Doctor[]; initialFilter?: string }) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
   const activeFilter = useMemo(() => {
-    const param = searchParams.get("specialty");
-    if (param && filters.includes(param)) return param;
-    if (filters.includes(initialFilter)) return initialFilter;
-    return "All";
+    const fromUrl = normalizeFilter(searchParams.get("specialty"));
+    if (fromUrl !== "All") return fromUrl;
+    return normalizeFilter(initialFilter);
   }, [searchParams, initialFilter]);
 
   const filteredDoctors =
     activeFilter === "All"
       ? doctors
-      : doctors.filter((doctor) => doctor.specialty === activeFilter);
+      : doctors.filter((doctor) => doctor.specialty?.toLowerCase() === activeFilter.toLowerCase());
 
   function selectFilter(filter: string) {
     const params = new URLSearchParams(searchParams.toString());
