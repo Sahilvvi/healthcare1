@@ -5,6 +5,7 @@ export interface Package {
   price: string;
   stay: string;
   specialty: string;
+  image: string;
   includes: string[];
   description: string;
   hospitals: string[];
@@ -21,6 +22,7 @@ export const packages: Package[] = [
     description:
       "A comprehensive joint replacement package including pre-operative evaluation, surgery, hospital stay, physiotherapy and follow-up. Ideal for patients seeking high-quality orthopedic care with clear bundled pricing.",
     hospitals: ["Apollo Chennai", "Max Hospital Mumbai"],
+    image: "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&q=80&w=800",
     includes: [
       "Specialist consultation",
       "Surgery",
@@ -40,6 +42,7 @@ export const packages: Package[] = [
     description:
       "Cardiac bypass surgery package managed by a senior cardiologist and cardiac surgeon team. Includes intensive care, rehabilitation planning and dedicated cardiac nursing.",
     hospitals: ["Fortis Escorts Delhi", "Apollo Chennai"],
+    image: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&q=80&w=800",
     includes: [
       "Cardiologist consultation",
       "Procedure",
@@ -59,6 +62,7 @@ export const packages: Package[] = [
     description:
       "End-to-end transplant evaluation and coordination package. Pricing is shared after medical review because donor matching and case complexity vary significantly.",
     hospitals: ["Apollo Chennai", "Tata Memorial Mumbai"],
+    image: "https://images.unsplash.com/photo-1581056771107-24ca5f033842?auto=format&fit=crop&q=80&w=800",
     includes: [
       "Transplant evaluation",
       "Surgery & post-op care",
@@ -78,6 +82,7 @@ export const packages: Package[] = [
     description:
       "Spine surgery and neuro-rehabilitation package for conditions such as herniated discs, spinal stenosis and deformities. Includes physiotherapy and discharge planning.",
     hospitals: ["NIMHANS Bengaluru", "Apollo Chennai"],
+    image: "https://images.unsplash.com/photo-1551601651-2a8555f1a136?auto=format&fit=crop&q=80&w=800",
     includes: [
       "Neuro/spine consultation",
       "Procedure",
@@ -97,6 +102,7 @@ export const packages: Package[] = [
     description:
       "A fertility treatment package including one IVF cycle with monitoring, medication support and counseling. Designed for international couples seeking discreet, coordinated care.",
     hospitals: ["Apollo Chennai", "Fortis Delhi"],
+    image: "https://images.unsplash.com/photo-1559757175-5700dde675bc?auto=format&fit=crop&q=80&w=800",
     includes: [
       "Fertility consultation",
       "IVF cycle",
@@ -116,6 +122,7 @@ export const packages: Package[] = [
     description:
       "Dental implant package covering assessment, implant placement and crown fitting. Suitable for patients looking for quality dental restoration with short travel stays.",
     hospitals: ["Apollo Chennai"],
+    image: "https://images.unsplash.com/photo-1606811841689-23dfddce3a95?auto=format&fit=crop&q=80&w=800",
     includes: [
       "Dental assessment",
       "Implant placement",

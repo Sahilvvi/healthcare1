@@ -38,6 +38,7 @@ export interface Package {
   price: string | null;
   stay: string | null;
   specialty: string | null;
+  image: string | null;
   includes: string[];
   description: string | null;
   hospitals: string[];

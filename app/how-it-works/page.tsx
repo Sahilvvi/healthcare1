@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { supabasePublic } from "@/app/lib/supabase/public";
 import { Reveal } from "@/app/components/Reveal";
 import { FinalCTA } from "@/app/components/FinalCTA";
@@ -118,26 +119,20 @@ export default async function HowItWorksPage() {
             </Reveal>
 
             <Reveal delay={100}>
-              <div className="rounded-2xl border border-border bg-white p-6 lg:p-8">
-                <h2 className="font-heading text-2xl font-semibold text-navy">What you can expect</h2>
-                <p className="mt-3 text-muted">
-                  Every patient receives a personalized plan, a single coordinator, and access to verified doctors and hospitals.
-                </p>
-                <ul className="mt-8 space-y-4">
-                  {[
-                    "Initial medical review within 24 hours",
-                    "Fixed, itemised cost estimates",
-                    "Dedicated English-speaking coordinator",
-                    "Visa invitation letters and travel support",
-                    "Airport pickup and accommodation guidance",
-                    "Post-treatment follow-ups and prescriptions",
-                  ].map((item) => (
-                    <li key={item} className="flex items-start gap-3 text-sm text-dark">
-                      <span className="mt-0.5 text-teal">✓</span>
-                      {item}
-                    </li>
-                  ))}
-                </ul>
+              <div className="relative h-full min-h-[400px] overflow-hidden rounded-2xl border border-border shadow-sm">
+                <Image
+                  src="https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&q=80&w=1200"
+                  alt="Medical professional reviewing a care plan"
+                  fill
+                  className="object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-navy/70 via-navy/20 to-transparent" />
+                <div className="absolute bottom-0 left-0 p-6 text-white lg:p-8">
+                  <p className="font-heading text-xl font-semibold">A partner at every step</p>
+                  <p className="mt-2 max-w-sm text-sm text-white/80">
+                    From medical review to airport pickup, your coordinator keeps your case moving.
+                  </p>
+                </div>
               </div>
             </Reveal>
           </div>

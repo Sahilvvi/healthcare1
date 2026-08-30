@@ -1,5 +1,7 @@
 import Link from "next/link";
+import Image from "next/image";
 import { supabasePublic } from "@/app/lib/supabase/public";
+import { getPackageImage } from "@/app/lib/packageImages";
 import type { Package } from "@/app/lib/types";
 
 export default async function PackagesPage() {
@@ -30,38 +32,50 @@ export default async function PackagesPage() {
           {packages.map((pkg) => (
             <div
               key={pkg.slug}
-              className="group flex flex-col rounded-lg border border-border bg-white p-6 shadow-sm transition-all hover:border-teal/30 hover:shadow-md"
+              className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-white shadow-sm transition-all hover:-translate-y-0.5 hover:border-teal/30 hover:shadow-md"
             >
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className="text-sm font-medium text-muted">{pkg.country}</p>
-                  <h2 className="mt-1 font-heading text-xl font-semibold text-navy">
-                    {pkg.name}
-                  </h2>
-                  <p className="text-sm text-teal">{pkg.specialty}</p>
-                </div>
-                <span className="rounded-full bg-sage px-3 py-1 text-xs font-medium text-navy">
+              <div className="relative aspect-[16/9] overflow-hidden">
+                <Image
+                  src={pkg.image || getPackageImage(pkg.slug)}
+                  alt={pkg.name}
+                  fill
+                  className="object-cover transition-transform duration-700 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-navy/50 to-transparent" />
+                <span className="absolute right-4 top-4 rounded-full bg-white/90 px-3 py-1 text-xs font-medium text-navy backdrop-blur">
                   {pkg.stay}
                 </span>
               </div>
-              <p className="mt-6 font-heading text-3xl font-semibold text-navy">
-                {pkg.price}
-              </p>
-              <p className="text-sm text-muted">Starting from</p>
-              <ul className="mt-6 flex-1 space-y-3">
-                {pkg.includes?.slice(0, 5).map((item) => (
-                  <li key={item} className="flex items-start gap-3 text-sm">
-                    <CheckIcon />
-                    <span className="text-dark">{item}</span>
-                  </li>
-                ))}
-              </ul>
-              <Link
-                href={`/packages/${pkg.slug}`}
-                className="mt-8 block rounded-md border border-navy bg-navy px-5 py-3 text-center text-sm font-medium text-white transition-colors hover:bg-teal"
-              >
-                View package
-              </Link>
+
+              <div className="flex flex-1 flex-col p-6">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-muted">{pkg.country}</p>
+                    <h2 className="mt-1 font-heading text-xl font-semibold text-navy">
+                      {pkg.name}
+                    </h2>
+                    <p className="text-sm text-teal">{pkg.specialty}</p>
+                  </div>
+                </div>
+                <p className="mt-4 font-heading text-3xl font-semibold text-navy">
+                  {pkg.price}
+                </p>
+                <p className="text-sm text-muted">Starting from</p>
+                <ul className="mt-6 flex-1 space-y-3">
+                  {pkg.includes?.slice(0, 5).map((item) => (
+                    <li key={item} className="flex items-start gap-3 text-sm">
+                      <CheckIcon />
+                      <span className="text-dark">{item}</span>
+                    </li>
+                  ))}
+                </ul>
+                <Link
+                  href={`/packages/${pkg.slug}`}
+                  className="mt-8 block rounded-md border border-navy bg-navy px-5 py-3 text-center text-sm font-medium text-white transition-colors hover:bg-teal"
+                >
+                  View package
+                </Link>
+              </div>
             </div>
           ))}
         </div>

@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { supabasePublic } from "@/app/lib/supabase/public";
 import { Reveal } from "@/app/components/Reveal";
 import { FinalCTA } from "@/app/components/FinalCTA";
@@ -15,6 +16,8 @@ const stories = [
     quote:
       "From the first video call to the day I walked out of the hospital, I knew exactly what was happening. My coordinator handled the visa, pickup and every appointment.",
     outcome: "Surgery completed · 12-day stay · Back to walking 2 km daily",
+    image:
+      "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=200",
   },
   {
     name: "Ahmed Al-Rashid",
@@ -24,6 +27,8 @@ const stories = [
     quote:
       "I was anxious about traveling for a heart procedure. The team gave me a clear second opinion, a fixed package price and a single point of contact who spoke Arabic.",
     outcome: "Second opinion + intervention · 8-day stay · Discharged with a recovery plan",
+    image:
+      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200",
   },
   {
     name: "Mei Lin",
@@ -33,6 +38,8 @@ const stories = [
     quote:
       "Speed mattered. Within 48 hours of submitting my reports, I had a treatment plan, cost estimate and a confirmed appointment with the oncology team.",
     outcome: "Evaluation + treatment plan · Ongoing follow-ups via teleconsultation",
+    image:
+      "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&q=80&w=200",
   },
 ];
 
@@ -93,9 +100,19 @@ export default async function StoriesPage() {
                       &ldquo;{story.quote}&rdquo;
                     </blockquote>
                     <div className="mt-6 flex flex-col gap-2 border-t border-border pt-6 text-sm sm:flex-row sm:items-center sm:justify-between">
-                      <div>
-                        <p className="font-medium text-dark">{story.name}</p>
-                        <p className="text-muted">{story.country}</p>
+                      <div className="flex items-center gap-3">
+                        <div className="relative h-10 w-10 overflow-hidden rounded-full bg-sage ring-2 ring-sage">
+                          <Image
+                            src={story.image}
+                            alt={story.name}
+                            fill
+                            className="object-cover"
+                          />
+                        </div>
+                        <div>
+                          <p className="font-medium text-dark">{story.name}</p>
+                          <p className="text-muted">{story.country}</p>
+                        </div>
                       </div>
                       <span className="rounded-full bg-sage px-3 py-1 text-xs font-medium text-dark">
                         {story.outcome}

@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { supabasePublic } from "@/app/lib/supabase/public";
 import { Reveal } from "@/app/components/Reveal";
 import { FinalCTA } from "@/app/components/FinalCTA";
@@ -114,29 +115,62 @@ export default async function TrustSafetyPage() {
             </Reveal>
 
             <Reveal delay={100}>
-              <div className="rounded-2xl border border-border bg-navy p-6 text-white lg:p-8">
-                <h2 className="font-heading text-2xl font-semibold">Your data, protected</h2>
-                <p className="mt-3 text-white/80">
-                  We use encrypted storage, role-based access and audit logging. Only the medical team assigned to your case can view your records, and only with your consent.
-                </p>
-                <ul className="mt-6 space-y-3 text-sm text-white/80">
-                  {[
-                    "HIPAA-aligned data handling",
-                    "Secure document uploads",
-                    "No third-party data sales",
-                    "You control who sees your case",
-                  ].map((item) => (
-                    <li key={item} className="flex items-start gap-3">
-                      <span className="text-teal">✓</span>
-                      {item}
-                    </li>
-                  ))}
-                </ul>
+              <div className="relative h-full min-h-[400px] overflow-hidden rounded-2xl border border-border shadow-sm">
+                <Image
+                  src="https://images.unsplash.com/photo-1581056771107-24ca5f033842?auto=format&fit=crop&q=80&w=1200"
+                  alt="Doctor and patient in a trusted consultation"
+                  fill
+                  className="object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-navy/80 via-navy/30 to-transparent" />
+                <div className="absolute bottom-0 left-0 p-6 text-white lg:p-8">
+                  <p className="font-heading text-xl font-semibold">Human care, backed by standards</p>
+                  <p className="mt-2 max-w-sm text-sm text-white/80">
+                    Every partner hospital and doctor is verified before they can appear on the platform.
+                  </p>
+                </div>
               </div>
             </Reveal>
           </div>
 
           <Reveal delay={150}>
+            <div className="mt-24 rounded-2xl border border-border bg-navy p-6 text-white lg:p-8">
+              <div className="grid gap-10 lg:grid-cols-2 lg:items-center">
+                <div>
+                  <h2 className="font-heading text-2xl font-semibold">Your data, protected</h2>
+                  <p className="mt-3 text-white/80">
+                    We use encrypted storage, role-based access and audit logging. Only the medical team assigned to your case can view your records, and only with your consent.
+                  </p>
+                  <ul className="mt-6 space-y-3 text-sm text-white/80">
+                    {[
+                      "HIPAA-aligned data handling",
+                      "Secure document uploads",
+                      "No third-party data sales",
+                      "You control who sees your case",
+                    ].map((item) => (
+                      <li key={item} className="flex items-start gap-3">
+                        <span className="text-teal">✓</span>
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div className="grid gap-4 sm:grid-cols-2">
+                  {securityPractices.map((s) => (
+                    <div key={s.title} className="rounded-xl bg-white/5 p-4 text-center transition-colors hover:bg-white/10">
+                      <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-white/10 text-teal">
+                        <s.icon className="h-5 w-5" />
+                      </div>
+                      <h3 className="mt-4 font-heading text-sm font-semibold">{s.title}</h3>
+                      <p className="mt-1 text-xs text-white/70">{s.desc}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </Reveal>
+
+          <Reveal delay={200}>
             <div className="mt-24">
               <SectionIntro
                 eyebrow="Security practices"
