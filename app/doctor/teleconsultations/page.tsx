@@ -22,10 +22,13 @@ export default async function DoctorTeleconsultationsPage() {
   const { data: profile } = await supabase.from("dv_profiles").select("role").eq("id", user.id).single();
   if (!isDoctor(profile?.role)) redirect("/login");
 
+  const { data: doctor } = await supabaseAdmin.from("dv_doctors").select("id").eq("user_id", user.id).single();
+
   const { data: appointmentsData } = await supabaseAdmin
     .from("dv_appointments")
-    .select("*, dv_cases!inner(dv_profiles(name))")
-    .ilike("type", "%tele%")
+    .select("*, dv_cases!inner(patient_id, dv_profiles!patient_id(name))")
+    .eq("doctor_id", doctor?.id)
+    .or("type.ilike.*tele*,type.ilike.*video*")
     .order("scheduled_at", { ascending: true })
     .limit(50);
 

@@ -8,7 +8,7 @@ import type { Appointment } from "@/app/lib/types";
 
 type AppointmentRow = Appointment & {
   dv_doctors?: { name: string; specialty: string } | null;
-  dv_profiles?: { name: string } | null;
+  dv_cases?: { patient_id?: string; dv_profiles?: { name?: string } | null } | null;
 };
 
 function formatDate(ts: string) {
@@ -26,7 +26,7 @@ export default async function AdminAppointmentsPage() {
 
   const { data } = await supabaseAdmin
     .from("dv_appointments")
-    .select("*, dv_doctors!doctor_id(name, specialty), dv_profiles!patient_id(name)")
+    .select("*, dv_doctors!doctor_id(name, specialty), dv_cases!case_id(patient_id, dv_profiles!patient_id(name, country))")
     .order("scheduled_at", { ascending: false })
     .limit(100);
   const appointments: AppointmentRow[] = (data as AppointmentRow[]) || [];
@@ -48,7 +48,7 @@ export default async function AdminAppointmentsPage() {
           <tbody className="divide-y divide-border">
             {appointments.map((a) => (
               <tr key={a.id}>
-                <td className="px-5 py-4 text-dark">{a.dv_profiles?.name || "—"}</td>
+                <td className="px-5 py-4 text-dark">{a.dv_cases?.dv_profiles?.name || "—"}</td>
                 <td className="px-5 py-4 text-muted">{a.dv_doctors?.name || "—"}{a.dv_doctors?.specialty ? ` · ${a.dv_doctors.specialty}` : ""}</td>
                 <td className="px-5 py-4 text-muted">{a.scheduled_at ? formatDate(a.scheduled_at) : "—"}</td>
                 <td className="px-5 py-4"><Badge tone={a.status === "CONFIRMED" ? "success" : a.status === "PENDING" ? "warning" : a.status === "CANCELLED" ? "danger" : "info"}>{a.status}</Badge></td>

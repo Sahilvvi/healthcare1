@@ -70,12 +70,18 @@ export default async function AdminDashboard() {
     supabaseAdmin.from("dv_packages").select("*", { count: "exact", head: true }),
     supabaseAdmin.from("dv_cases").select("*, dv_profiles(name, country)").order("created_at", { ascending: false }).limit(15),
     supabaseAdmin.from("dv_transactions").select("*").order("created_at", { ascending: true }).limit(500),
-    supabaseAdmin.from("dv_transactions").select("*, dv_profiles(name)").order("created_at", { ascending: false }).limit(8),
+    supabaseAdmin.from("dv_transactions").select("*").order("created_at", { ascending: false }).limit(8),
   ]);
 
   const casesList: (Case & { dv_profiles?: Profile | null })[] = (cases as (Case & { dv_profiles?: Profile | null })[]) || [];
   const transactions: Transaction[] = (transactionsData || []) as Transaction[];
-  const recentTransactions: (Transaction & { dv_profiles?: { name?: string } | null })[] = (recentTransactionsData || []) as unknown as (Transaction & { dv_profiles?: { name?: string } | null })[];
+  const recentTransactions: Transaction[] = (recentTransactionsData || []) as Transaction[];
+
+  const recentPatientIds = Array.from(new Set(recentTransactions.map((t) => t.patient_id).filter(Boolean))) as string[];
+  const { data: recentProfiles } = recentPatientIds.length
+    ? await supabaseAdmin.from("dv_profiles").select("id, name").in("id", recentPatientIds)
+    : { data: [] };
+  const recentProfileMap = new Map((recentProfiles || []).map((p: { id: string; name: string }) => [p.id, p.name]));
 
   const revenue = transactions.filter((t) => t.type === "income").reduce((sum, t) => sum + Number(t.amount), 0);
   const costs = transactions.filter((t) => t.type === "cost").reduce((sum, t) => sum + Number(t.amount), 0);
@@ -219,7 +225,7 @@ export default async function AdminDashboard() {
                     <li key={tx.id} className="flex items-center justify-between rounded-xl bg-warm-white px-4 py-3">
                       <div>
                         <p className="text-sm font-medium text-dark">{tx.type}</p>
-                        <p className="text-xs text-muted">{tx.dv_profiles?.name || "—"} · {new Date(tx.created_at).toLocaleDateString()}</p>
+                        <p className="text-xs text-muted">{recentProfileMap.get(tx.patient_id || "") || "—"} · {new Date(tx.created_at).toLocaleDateString()}</p>
                       </div>
                       <span className={`text-sm font-semibold ${tx.type === "income" ? "text-teal" : tx.type === "refund" ? "text-red-600" : "text-navy"}`}>
                         {tx.type === "cost" ? "−" : "+"}{formatAmount(Number(tx.amount), tx.currency || "USD")}

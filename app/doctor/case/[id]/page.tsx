@@ -2,7 +2,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/app/lib/supabase/server";
 import { supabaseAdmin } from "@/app/lib/supabase/admin";
-import type { Case, Profile, Appointment, MedicineOrder, CaseTimeline, Document } from "@/app/lib/types";
+import type { Case, Profile, Appointment, Prescription, CaseTimeline, Document } from "@/app/lib/types";
 import { CaseNoteForm, PrescriptionForm, FollowUpForm } from "../CaseActions";
 
 interface CaseNote {
@@ -11,12 +11,17 @@ interface CaseNote {
   doctor_id: string;
   note: string;
   created_at: string;
-  dv_profiles?: { name: string } | null;
+  doctorName?: string | null;
 }
 
-function formatItems(items: unknown): string {
-  if (Array.isArray(items)) return items.map(String).join(", ");
-  if (typeof items === "string") return items;
+function formatMedications(medications: unknown): string {
+  if (Array.isArray(medications)) {
+    return medications
+      .map((m) => `${(m as { name?: string; dosage?: string }).name || ""} ${(m as { name?: string; dosage?: string }).dosage || ""}`.trim())
+      .filter(Boolean)
+      .join(", ");
+  }
+  if (typeof medications === "string") return medications;
   return "—";
 }
 
@@ -51,18 +56,28 @@ export default async function DoctorCasePage({ params }: { params: Promise<{ id:
 
   const caseRecord = caseData as Case & { dv_profiles: Profile | null };
 
-  const [{ data: notes }, { data: prescriptions }, { data: appointments }, { data: timeline }, { data: documents }] =
+  const [{ data: notesData }, { data: prescriptionsData }, { data: appointments }, { data: timeline }, { data: documents }] =
     await Promise.all([
       supabaseAdmin
         .from("dv_case_notes")
-        .select("*, dv_profiles!doctor_id(name)")
+        .select("*")
         .eq("case_id", caseId)
         .order("created_at", { ascending: false }),
-      supabaseAdmin.from("dv_medicine_orders").select("*").eq("case_id", caseId).order("created_at", { ascending: false }),
+      supabaseAdmin.from("dv_prescriptions").select("*").eq("case_id", caseId).order("created_at", { ascending: false }),
       supabaseAdmin.from("dv_appointments").select("*").eq("case_id", caseId).order("scheduled_at", { ascending: true }),
       supabaseAdmin.from("dv_case_timeline").select("*").eq("case_id", caseId).order("created_at", { ascending: false }),
       supabaseAdmin.from("dv_documents").select("*").eq("case_id", caseId).order("created_at", { ascending: false }),
     ]);
+
+  const notes: CaseNote[] = (notesData || []) as CaseNote[];
+  const prescriptions: Prescription[] = (prescriptionsData || []) as Prescription[];
+
+  const noteDoctorIds = Array.from(new Set(notes.map((n) => n.doctor_id).filter(Boolean))) as string[];
+  const { data: noteProfiles } = noteDoctorIds.length
+    ? await supabaseAdmin.from("dv_profiles").select("id, name").in("id", noteDoctorIds)
+    : { data: [] };
+  const noteProfileMap = new Map((noteProfiles || []).map((p: { id: string; name: string }) => [p.id, p.name]));
+  notes.forEach((n) => { n.doctorName = noteProfileMap.get(n.doctor_id); });
 
   return (
     <section className="bg-warm-white py-10 lg:py-16">
@@ -110,11 +125,11 @@ export default async function DoctorCasePage({ params }: { params: Promise<{ id:
             <div className="rounded-lg border border-border bg-white p-6 shadow-sm">
               <h2 className="font-heading text-lg font-semibold text-navy">Case notes</h2>
               <div className="mt-4 space-y-4">
-                {(notes as CaseNote[] || []).map((n) => (
+                {notes.map((n) => (
                   <div key={n.id} className="rounded-md border border-border bg-warm-white p-4">
                     <p className="text-sm text-dark">{n.note}</p>
                     <p className="mt-2 text-xs text-muted">
-                      {n.dv_profiles?.name || "Doctor"} · {new Date(n.created_at).toLocaleString()}
+                      {n.doctorName || "Doctor"} · {new Date(n.created_at).toLocaleString()}
                     </p>
                   </div>
                 ))}
@@ -128,9 +143,9 @@ export default async function DoctorCasePage({ params }: { params: Promise<{ id:
             <div className="rounded-lg border border-border bg-white p-6 shadow-sm">
               <h2 className="font-heading text-lg font-semibold text-navy">Prescriptions</h2>
               <div className="mt-4 space-y-3">
-                {(prescriptions as MedicineOrder[] || []).map((p) => (
+                {prescriptions.map((p) => (
                   <div key={p.id} className="rounded-md border border-border bg-warm-white p-4">
-                    <p className="text-sm text-dark">{formatItems(p.items)}</p>
+                    <p className="text-sm text-dark">{formatMedications(p.medications)}</p>
                     <p className="mt-1 text-xs text-muted">{p.status}</p>
                   </div>
                 ))}

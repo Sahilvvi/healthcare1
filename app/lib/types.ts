@@ -85,6 +85,7 @@ export interface Appointment {
   status: string;
   link: string | null;
   dv_doctors?: { name: string; specialty: string } | null;
+  dv_cases?: { patient_id?: string; dv_profiles?: { name?: string } | null } | null;
 }
 
 export interface Document {

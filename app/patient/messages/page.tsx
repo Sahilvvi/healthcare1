@@ -11,9 +11,7 @@ interface CaseSummary {
   created_at: string;
 }
 
-interface MessageWithSender extends Message {
-  dv_profiles?: { name: string } | null;
-}
+type MessageWithSender = Message;
 
 function formatDate(ts: string) {
   return new Date(ts).toLocaleString("en-IN", { day: "numeric", month: "short", hour: "numeric", minute: "2-digit" });
@@ -36,7 +34,7 @@ export default async function PatientMessagesPage() {
   if (activeCase) {
     const { data } = await supabase
       .from("dv_messages")
-      .select("*, dv_profiles(name)")
+      .select("*")
       .eq("case_id", activeCase.id)
       .order("created_at", { ascending: true })
       .limit(100);
@@ -64,7 +62,7 @@ export default async function PatientMessagesPage() {
                 const isMe = msg.sender_id === user.id;
                 return (
                   <div key={msg.id} className={`flex flex-col ${isMe ? "items-end" : "items-start"}`}>
-                    <p className="text-xs text-muted">{isMe ? "You" : msg.dv_profiles?.name || "Care team"} · {formatDate(msg.created_at)}</p>
+                    <p className="text-xs text-muted">{isMe ? "You" : "Care team"} · {formatDate(msg.created_at)}</p>
                     <p className={`mt-1 max-w-md rounded-md px-4 py-2.5 text-sm ${isMe ? "bg-navy text-white" : "bg-sage/40 text-dark"}`}>
                       {msg.content}
                     </p>
