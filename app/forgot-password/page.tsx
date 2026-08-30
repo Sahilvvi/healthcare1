@@ -22,9 +22,14 @@ export default function ForgotPasswordPage() {
 
     setLoading(false);
     if (error) {
-      setStatus({ ok: false, message: error.message });
+      const msg =
+        error.message?.toLowerCase().includes("email_address_invalid") ||
+        error.message?.toLowerCase().includes("is invalid")
+          ? "Please use a real, deliverable email address. Test/example domains are rejected."
+          : error.message;
+      setStatus({ ok: false, message: msg });
     } else {
-      setStatus({ ok: true, message: "Check your inbox for a reset link." });
+      setStatus({ ok: true, message: "If this account exists, a reset link has been sent to your inbox." });
       setEmail("");
     }
   }
